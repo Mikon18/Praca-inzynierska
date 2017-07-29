@@ -36,122 +36,129 @@ import com.eti.wiki.model.WikiPage;
 import com.eti.wiki.model.collection.ReferenceConnection;
 import com.eti.wiki.parser.AbstractProcessor;
 import com.eti.wiki.parser.ContentReferenceParser;
+import com.eti.wiki.ui.IParsingProgressListener;
 
 public class OccurencesFinderAll extends AbstractProcessor {
 
-	private Map<String, WikiOccurences> occurences;
-	private Map<String, Page> pages;
-	private LinkedList<ReferenceConnection> connections;
+    private Map<String, WikiOccurences> occurences;
+    private Map<String, Page> pages;
+    private LinkedList<ReferenceConnection> connections;
 
-	private BufferedReader fileReader;
-	private String fileName;
-	private Set<String> references;
-	private String keyword;
-	
-	public OccurencesFinderAll(String name) {
-		fileName = name;
+    private BufferedReader fileReader;
+    private String fileName;
+    private Set<String> references;
+    private String keyword;
+    private IParsingProgressListener listener;
+    private int counter;
 
-		occurences = new HashMap<String, WikiOccurences>();
-		connections = new LinkedList<>();
-		pages = new HashMap<>();
-	}
+    public OccurencesFinderAll(String name, IParsingProgressListener listener) {
+        this.listener = listener;
+        this.counter = 0;
+        fileName = name;
 
-	public void findReferences() {
-		StringBuilder keywordsCombined = new StringBuilder();
-		for (String keyword : Configuration.KEYWORDS) {
-			keywordsCombined.append(keyword).append(";");
-		}
+        occurences = new HashMap<String, WikiOccurences>();
+        connections = new LinkedList<>();
+        pages = new HashMap<>();
+    }
 
-		loadOccurences(keywordsCombined.toString());
-		selectPagesDatabase();
+    public void findReferences() {
+        StringBuilder keywordsCombined = new StringBuilder();
+        for (String keyword : Configuration.KEYWORDS) {
+            keywordsCombined.append(keyword).append(";");
+        }
 
-		references = occurences.keySet();
-		keyword = keywordsCombined.toString();
-	}
+        loadOccurences(keywordsCombined.toString());
+        selectPagesDatabase();
 
-	private void putIntoDatabase(long parentId, long referenceId, String keyword) {
+        references = occurences.keySet();
+        keyword = keywordsCombined.toString();
+    }
 
-		Session session = DatabaseSession.getSessionFactory().openSession();
-		Transaction transaction = session.beginTransaction();
-		try {
-			if (parentId != -1 && referenceId != -1) {
-				session.save(new ReferenceKeywordAll(parentId, referenceId, keyword));
-			}
-		} catch (Exception e) {
-			LoggerFactory.getLogger(getClass()).error("Error saving reference into database.");
-			e.printStackTrace();
-		} finally {
-			transaction.commit();
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+    private void putIntoDatabase(long parentId, long referenceId, String keyword) {
 
-	private void loadOccurences(String keywords) {
-		Session session = DatabaseSession.getSessionFactory().openSession();
-		Transaction transaction = session.beginTransaction();
-		try {
-			Criteria c = session.createCriteria(WikiOccurences.class);
-			LoggerFactory.getLogger(getClass()).info("Fetching");
-			List<WikiOccurences> resultPages = (List<WikiOccurences>) c.add(Restrictions.eq("keywords", keywords))
-					.list();
-			LoggerFactory.getLogger(getClass()).info("Done");
+        Session session = DatabaseSession.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+        try {
+            if (parentId != -1 && referenceId != -1) {
+                session.save(new ReferenceKeywordAll(parentId, referenceId, keyword));
+            }
+        } catch (Exception e) {
+            LoggerFactory.getLogger(getClass()).error("Error saving reference into database.");
+            e.printStackTrace();
+        } finally {
+            transaction.commit();
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
 
-			for (WikiOccurences occurence : resultPages) {
-				occurences.put(occurence.getTitle(), occurence);
-			}
-		} catch (Exception e) {
-			System.out.println("Exception:" + e.getMessage());
-		} finally {
-			transaction.commit();
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+    private void loadOccurences(String keywords) {
+        Session session = DatabaseSession.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+        try {
+            Criteria c = session.createCriteria(WikiOccurences.class);
+            LoggerFactory.getLogger(getClass()).info("Fetching");
+            List<WikiOccurences> resultPages = (List<WikiOccurences>) c.add(Restrictions.eq("keywords", keywords))
+                    .list();
+            LoggerFactory.getLogger(getClass()).info("Done");
 
-	private void selectPagesDatabase() {
-		List<String> titles = new LinkedList<String>();
-		for (WikiOccurences occurence : occurences.values()) {
-			titles.add(occurence.getTitle());
-		}
+            for (WikiOccurences occurence : resultPages) {
+                occurences.put(occurence.getTitle(), occurence);
+            }
+        } catch (Exception e) {
+            System.out.println("Exception:" + e.getMessage());
+        } finally {
+            transaction.commit();
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
 
-		Session session = DatabaseSession.getSessionFactory().openSession();
-		Transaction transaction = session.beginTransaction();
-		try {
-			Criteria c = session.createCriteria(Page.class);
-			LoggerFactory.getLogger(getClass()).info("Fetching");
-			List<Page> resultPages = (List<Page>) c.add(Restrictions.in("title", titles)).list();
-			LoggerFactory.getLogger(getClass()).info("Done");
+    private void selectPagesDatabase() {
+        List<String> titles = new LinkedList<String>();
+        for (WikiOccurences occurence : occurences.values()) {
+            titles.add(occurence.getTitle());
+        }
 
-			for (Page page : resultPages) {
-				pages.put(page.getTitle(), page);
-			}
+        Session session = DatabaseSession.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+        try {
+            Criteria c = session.createCriteria(Page.class);
+            LoggerFactory.getLogger(getClass()).info("Fetching");
+            List<Page> resultPages = (List<Page>) c.add(Restrictions.in("title", titles)).list();
+            LoggerFactory.getLogger(getClass()).info("Done");
 
-		} catch (Exception e) {
-			System.out.println("Exception:" + e.getMessage());
-		} finally {
-			transaction.commit();
-			if (session != null) {
-				session.close();
-			}
-		}
-	}
+            for (Page page : resultPages) {
+                pages.put(page.getTitle(), page);
+            }
 
-	@Override
-	public void process(WikiPage page) {
-		if ( page != null) {
-			Set<String> subReferences = ContentReferenceParser.parseReferences( page.getContent());
-			for (String subreference : subReferences) {
-				if (references.contains(subreference)) {
-					if (pages.get(subreference) != null) {
-						putIntoDatabase( page.getId(), pages.get(subreference).getId(), keyword);
-					} else {
-						LoggerFactory.getLogger(getClass()).error("Couldn't find: " + subreference);
-					}
-				}
-			}
-		}
-	}
+        } catch (Exception e) {
+            System.out.println("Exception:" + e.getMessage());
+        } finally {
+            transaction.commit();
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    @Override
+    public void process(WikiPage page) {
+        listener.currentlyProcessedPageChanged(page.getTitle());
+        if (page != null) {
+            listener.progressChanged(counter++, Configuration.PAGES_ALL);
+            Set<String> subReferences = ContentReferenceParser.parseReferences(page.getContent());
+            for (String subreference : subReferences) {
+                if (references.contains(subreference)) {
+                    if (pages.get(subreference) != null) {
+                        putIntoDatabase(page.getId(), pages.get(subreference).getId(), keyword);
+                    } else {
+                        LoggerFactory.getLogger(getClass()).error("Couldn't find: " + subreference);
+                    }
+                }
+            }
+        }
+    }
 }

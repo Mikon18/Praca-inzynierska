@@ -28,10 +28,21 @@ import org.jboss.logging.Logger;
  *
  * @author pawel
  */
-public class MainWindow extends javax.swing.JFrame {
+public class MainWindow extends javax.swing.JFrame implements IParsingProgressListener {
 
     public MainWindow() {
         initComponents();
+    }
+
+    @Override
+    public void progressChanged(int howMuch, int outOf) {
+        jProgressBar1.setValue((int) (100.0 * ((double) ((double) howMuch / (double) outOf))));
+        statusLabel.setText("Aktualnie przetwarzana strona: " + howMuch + " z " + outOf);
+    }
+
+    @Override
+    public void currentlyProcessedPageChanged(String toPage) {
+        statusLabel2.setText(toPage);
     }
 
     @SuppressWarnings("unchecked")
@@ -46,23 +57,30 @@ public class MainWindow extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         faza1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
+        faza1Btn = new javax.swing.JButton();
+        btnFaza1 = new javax.swing.JButton();
         faza2 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
+        faza2Btn = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
         jTextField4 = new javax.swing.JTextField();
+        btnFaza2 = new javax.swing.JButton();
+        jLabel13 = new javax.swing.JLabel();
+        threshhold = new javax.swing.JTextField();
         faza3 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
-        jButton4 = new javax.swing.JButton();
+        faza3Btn = new javax.swing.JButton();
+        btnFaza3 = new javax.swing.JButton();
         faza4 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
-        jButton5 = new javax.swing.JButton();
+        faza4Btn = new javax.swing.JButton();
+        btnFaza4 = new javax.swing.JButton();
         faza5 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
-        jButton6 = new javax.swing.JButton();
+        faza5Btn = new javax.swing.JButton();
         jLabel8 = new javax.swing.JLabel();
         jTextField3 = new javax.swing.JTextField();
+        btnFaza5 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
@@ -70,18 +88,19 @@ public class MainWindow extends javax.swing.JFrame {
         jLabel9 = new javax.swing.JLabel();
         postep_label = new javax.swing.JLabel();
         jProgressBar1 = new javax.swing.JProgressBar();
+        statusLabel = new javax.swing.JLabel();
+        statusLabel2 = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         jButton7 = new javax.swing.JButton();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         jTextField6 = new javax.swing.JTextField();
-        jScrollPane1 = new javax.swing.JScrollPane(jTextArea1,
-            javax.swing.JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(800, 600));
-        setUndecorated(true);
         setPreferredSize(new java.awt.Dimension(800, 600));
         setResizable(false);
         getContentPane().setLayout(new java.awt.GridBagLayout());
@@ -131,17 +150,25 @@ public class MainWindow extends javax.swing.JFrame {
         gridBagConstraints.weightx = 1.0;
         faza1.add(jLabel2, gridBagConstraints);
 
-        jButton2.setText("Uruchom");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        faza1Btn.setText("Uruchom");
+        faza1Btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                faza1BtnActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 0.01;
-        faza1.add(jButton2, gridBagConstraints);
+        faza1.add(faza1Btn, gridBagConstraints);
+
+        btnFaza1.setText("Wyœwietl");
+        btnFaza1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFaza1ActionPerformed(evt);
+            }
+        });
+        faza1.add(btnFaza1, new java.awt.GridBagConstraints());
 
         jPanel2.add(faza1);
 
@@ -149,24 +176,26 @@ public class MainWindow extends javax.swing.JFrame {
 
         jLabel3.setText("Faza 2 (Zliczanie wyst¹pieñ wikioccurences):");
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.weightx = 1.0;
         faza2.add(jLabel3, gridBagConstraints);
 
-        jButton3.setText("Uruchom");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        faza2Btn.setText("Uruchom");
+        faza2Btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                faza2BtnActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         gridBagConstraints.weightx = 0.01;
-        faza2.add(jButton3, gridBagConstraints);
+        faza2.add(faza2Btn, gridBagConstraints);
 
         jLabel10.setText("D³ugoœæ kolejki:");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -181,6 +210,28 @@ public class MainWindow extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
         faza2.add(jTextField4, gridBagConstraints);
 
+        btnFaza2.setText("Wyœwietl");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 2;
+        faza2.add(btnFaza2, gridBagConstraints);
+
+        jLabel13.setText("Threshhold:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        faza2.add(jLabel13, gridBagConstraints);
+
+        threshhold.setText("5");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 0.5;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
+        faza2.add(threshhold, gridBagConstraints);
+
         jPanel2.add(faza2);
 
         faza3.setLayout(new java.awt.GridBagLayout());
@@ -192,16 +243,19 @@ public class MainWindow extends javax.swing.JFrame {
         gridBagConstraints.weightx = 1.0;
         faza3.add(jLabel4, gridBagConstraints);
 
-        jButton4.setText("Uruchom");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        faza3Btn.setText("Uruchom");
+        faza3Btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                faza3BtnActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 0.01;
-        faza3.add(jButton4, gridBagConstraints);
+        faza3.add(faza3Btn, gridBagConstraints);
+
+        btnFaza3.setText("Wyœwietl");
+        faza3.add(btnFaza3, new java.awt.GridBagConstraints());
 
         jPanel2.add(faza3);
 
@@ -213,17 +267,20 @@ public class MainWindow extends javax.swing.JFrame {
         gridBagConstraints.weightx = 1.0;
         faza4.add(jLabel5, gridBagConstraints);
 
-        jButton5.setText("Uruchom");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
+        faza4Btn.setText("Uruchom");
+        faza4Btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+                faza4BtnActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.weightx = 0.01;
-        faza4.add(jButton5, gridBagConstraints);
+        faza4.add(faza4Btn, gridBagConstraints);
+
+        btnFaza4.setText("Wyœwietl");
+        faza4.add(btnFaza4, new java.awt.GridBagConstraints());
 
         jPanel2.add(faza4);
 
@@ -235,17 +292,17 @@ public class MainWindow extends javax.swing.JFrame {
         gridBagConstraints.weightx = 1.0;
         faza5.add(jLabel7, gridBagConstraints);
 
-        jButton6.setText("Uruchom");
-        jButton6.addActionListener(new java.awt.event.ActionListener() {
+        faza5Btn.setText("Uruchom");
+        faza5Btn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6ActionPerformed(evt);
+                faza5BtnActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        faza5.add(jButton6, gridBagConstraints);
+        faza5.add(faza5Btn, gridBagConstraints);
 
         jLabel8.setText("G³êbokoœæ:");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -260,6 +317,12 @@ public class MainWindow extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 0.2;
         faza5.add(jTextField3, gridBagConstraints);
+
+        btnFaza5.setText("Wyœwietl");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        faza5.add(btnFaza5, gridBagConstraints);
 
         jPanel2.add(faza5);
 
@@ -296,6 +359,7 @@ public class MainWindow extends javax.swing.JFrame {
         gridBagConstraints.weighty = 0.01;
         getContentPane().add(jPanel3, gridBagConstraints);
 
+        jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         jPanel4.setLayout(new java.awt.GridBagLayout());
 
         jLabel9.setText("Postêp:");
@@ -316,13 +380,34 @@ public class MainWindow extends javax.swing.JFrame {
         gridBagConstraints.weighty = 0.1;
         jPanel4.add(jProgressBar1, gridBagConstraints);
 
+        statusLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        statusLabel.setMinimumSize(new java.awt.Dimension(300, 15));
+        statusLabel.setPreferredSize(new java.awt.Dimension(300, 15));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 1.0;
+        jPanel4.add(statusLabel, gridBagConstraints);
+
+        statusLabel2.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        statusLabel2.setMinimumSize(new java.awt.Dimension(300, 15));
+        statusLabel2.setPreferredSize(new java.awt.Dimension(300, 15));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        jPanel4.add(statusLabel2, gridBagConstraints);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 0.5;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         getContentPane().add(jPanel4, gridBagConstraints);
 
+        jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
         jPanel5.setMinimumSize(new java.awt.Dimension(47, 14));
         jPanel5.setPreferredSize(new java.awt.Dimension(183, 44));
         jPanel5.setLayout(new java.awt.GridBagLayout());
@@ -334,8 +419,10 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
         jPanel5.add(jButton7, gridBagConstraints);
 
         jLabel11.setText("Tytu³y wydzielonych stron:");
@@ -344,26 +431,28 @@ public class MainWindow extends javax.swing.JFrame {
         jLabel11.setPreferredSize(new java.awt.Dimension(140, 14));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 0.1;
-        gridBagConstraints.weighty = 0.1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         jPanel5.add(jLabel11, gridBagConstraints);
 
         jLabel12.setText("Iloœæ stron:");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 0, 0);
         jPanel5.add(jLabel12, gridBagConstraints);
 
         jTextField6.setText("6000");
         jTextField6.setCaretPosition(1);
         jTextField6.setPreferredSize(new java.awt.Dimension(20, 30));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 0.2;
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
         jPanel5.add(jTextField6, gridBagConstraints);
 
         jScrollPane1.setPreferredSize(new java.awt.Dimension(425, 120));
@@ -375,14 +464,28 @@ public class MainWindow extends javax.swing.JFrame {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
         jPanel5.add(jScrollPane1, gridBagConstraints);
+
+        jButton2.setText("Wyœwietl");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 10);
+        jPanel5.add(jButton2, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 0.5;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 5);
         getContentPane().add(jPanel5, gridBagConstraints);
 
         pack();
@@ -401,7 +504,7 @@ public class MainWindow extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void faza1BtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_faza1BtnActionPerformed
         postep_label.setText("Faza 1");
         Configuration.MAX_QUEUE_SIZE = Integer.parseInt(jTextField4.getText());
         new Thread(new Runnable() {
@@ -412,9 +515,16 @@ public class MainWindow extends javax.swing.JFrame {
                 setButtons(true);
             }
         }).start();
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_faza1BtnActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void faza2BtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_faza2BtnActionPerformed
+        try {
+            Configuration.OCCURENCES_THRESHOLD = Integer.parseInt(threshhold.getText());
+        } catch (Exception e) {
+            statusLabel.setText("Niepoprawna wartoœæ pola Threshhold!");
+            return;
+        }
+
         String[] splits = jTextField2.getText().split(",");
 
         postep_label.setText("Faza 2");
@@ -426,9 +536,9 @@ public class MainWindow extends javax.swing.JFrame {
                 setButtons(true);
             }
         }).start();
-    }//GEN-LAST:event_jButton3ActionPerformed
+    }//GEN-LAST:event_faza2BtnActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    private void faza3BtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_faza3BtnActionPerformed
         String[] splits = jTextField2.getText().split(",");
 
         postep_label.setText("Faza 3");
@@ -440,9 +550,9 @@ public class MainWindow extends javax.swing.JFrame {
                 setButtons(true);
             }
         }).start();
-    }//GEN-LAST:event_jButton4ActionPerformed
+    }//GEN-LAST:event_faza3BtnActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+    private void faza4BtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_faza4BtnActionPerformed
         String[] splits = jTextField2.getText().split(",");
 
         postep_label.setText("Faza 4");
@@ -454,9 +564,9 @@ public class MainWindow extends javax.swing.JFrame {
                 setButtons(true);
             }
         }).start();
-    }//GEN-LAST:event_jButton5ActionPerformed
+    }//GEN-LAST:event_faza4BtnActionPerformed
 
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+    private void faza5BtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_faza5BtnActionPerformed
         String[] splits = jTextField2.getText().split(",");
         Integer depth = Integer.parseInt(jTextField3.getText());
 
@@ -469,14 +579,14 @@ public class MainWindow extends javax.swing.JFrame {
                 setButtons(true);
             }
         }).start();
-    }//GEN-LAST:event_jButton6ActionPerformed
+    }//GEN-LAST:event_faza5BtnActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         new Thread(new Runnable() {
             @Override
             public void run() {
                 setButtons(false);
-                try {              
+                try {
                     pagerank();
                 } catch (FileNotFoundException ex) {
                     java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -486,14 +596,18 @@ public class MainWindow extends javax.swing.JFrame {
         }).start();
     }//GEN-LAST:event_jButton7ActionPerformed
 
+    private void btnFaza1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFaza1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnFaza1ActionPerformed
+
     private void setButtons(boolean to) {
         jButton1.setEnabled(to);
-        jButton2.setEnabled(to);
-        jButton3.setEnabled(to);
-        jButton4.setEnabled(to);
-        jButton5.setEnabled(to);
-        jButton6.setEnabled(to);
-        
+        faza1Btn.setEnabled(to);
+        faza2Btn.setEnabled(to);
+        faza3Btn.setEnabled(to);
+        faza4Btn.setEnabled(to);
+        faza5Btn.setEnabled(to);
+
         jTextField1.setEnabled(to);
         jTextField2.setEnabled(to);
         jTextField3.setEnabled(to);
@@ -539,7 +653,7 @@ public class MainWindow extends javax.swing.JFrame {
         WikiXMLPagesParser parser = new WikiXMLPagesParser();
 
         // czyta WikiPage, zamienia go na Page i wstawia do bazy
-        PageIdProcessor processor = new PageIdProcessor();
+        PageIdProcessor processor = new PageIdProcessor(this);
 
         // sprawia, ¿e po przeczytaniu page'a jest on wysy³any do parsera
         reader.addObserver(parser);
@@ -566,7 +680,7 @@ public class MainWindow extends javax.swing.JFrame {
         WikiXMLPagesParser parser = new WikiXMLPagesParser();
 
         // czyta WikiPage, dodaje go do listy.
-        OccurencesCounterProcessor processor = new OccurencesCounterProcessor();
+        OccurencesCounterProcessor processor = new OccurencesCounterProcessor(this);
 
         // sprawia, ¿e po przeczytaniu page'a jest on wysy³any do parsera
         reader.addObserver(parser);
@@ -593,7 +707,7 @@ public class MainWindow extends javax.swing.JFrame {
         }
 
         // stworzenie findera
-        OccurencesFinder finder = new OccurencesFinder();
+        OccurencesFinder finder = new OccurencesFinder(this);
 
         // rozpoczêcie pracy
         finder.findReferences();
@@ -615,7 +729,7 @@ public class MainWindow extends javax.swing.JFrame {
         WikiXMLPagesParser parser = new WikiXMLPagesParser();
 
         // stworzenie findera
-        OccurencesFinderAll finder = new OccurencesFinderAll(jTextField1.getText());
+        OccurencesFinderAll finder = new OccurencesFinderAll(jTextField1.getText(), this);
 
         // sprawia, ¿e po przeczytaniu page'a jest on wysy³any do parsera
         reader.addObserver(parser);
@@ -636,45 +750,52 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private void phase5(String word, int depth) {
-        GraphFileReader reader = new GraphFileReader(jTextField1.getText());
+        GraphFileReader reader = new GraphFileReader(jTextField1.getText(), this, depth);
         reader.readLayer(word, depth);
     }
-    
-    private void pagerank() throws FileNotFoundException{
+
+    private void pagerank() throws FileNotFoundException {
         int pageCount = Integer.parseInt(jTextField6.getText());
-        Gauss gauss =  new Gauss(pageCount);
+        Gauss gauss = new Gauss(pageCount);
         Map<Integer, Double> pagerankResults = gauss.solveGaussSeidel();
         jTextArea1.setRows(pagerankResults.size());
         int i = 1;
-        for(Map.Entry<Integer, Double> entry : pagerankResults.entrySet()){
+        for (Map.Entry<Integer, Double> entry : pagerankResults.entrySet()) {
             String title = gauss.findTitle(entry.getKey());
-            jTextArea1.append(Integer.toString(i++)+".");
-            jTextArea1.append(title+"   ");
+            jTextArea1.append(Integer.toString(i++) + ".");
+            jTextArea1.append(title + "   ");
             Double value = BigDecimal.valueOf(entry.getValue())
-                .setScale(6, RoundingMode.HALF_UP)
-                .doubleValue();
-            jTextArea1.append(value+"\n");
+                    .setScale(6, RoundingMode.HALF_UP)
+                    .doubleValue();
+            jTextArea1.append(value + "\n");
         }
         gauss.closeSession();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnFaza1;
+    private javax.swing.JButton btnFaza2;
+    private javax.swing.JButton btnFaza3;
+    private javax.swing.JButton btnFaza4;
+    private javax.swing.JButton btnFaza5;
     private javax.swing.JPanel faza1;
+    private javax.swing.JButton faza1Btn;
     private javax.swing.JPanel faza2;
+    private javax.swing.JButton faza2Btn;
     private javax.swing.JPanel faza3;
+    private javax.swing.JButton faza3Btn;
     private javax.swing.JPanel faza4;
+    private javax.swing.JButton faza4Btn;
     private javax.swing.JPanel faza5;
+    private javax.swing.JButton faza5Btn;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -697,5 +818,8 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField6;
     private javax.swing.JLabel postep_label;
+    private javax.swing.JLabel statusLabel;
+    private javax.swing.JLabel statusLabel2;
+    private javax.swing.JTextField threshhold;
     // End of variables declaration//GEN-END:variables
 }

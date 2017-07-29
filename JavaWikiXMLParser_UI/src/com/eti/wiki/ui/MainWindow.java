@@ -24,10 +24,6 @@ import java.util.logging.Level;
 import javax.swing.JFileChooser;
 import org.jboss.logging.Logger;
 
-/**
- *
- * @author pawel
- */
 public class MainWindow extends javax.swing.JFrame implements IParsingProgressListener {
 
     public MainWindow() {

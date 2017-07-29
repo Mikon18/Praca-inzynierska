@@ -5,10 +5,6 @@
  */
 package com.eti.wiki.ui;
 
-/**
- *
- * @author pawel
- */
 public interface IParsingProgressListener {
     void progressChanged(int howMuch, int outOf);
     void currentlyProcessedPageChanged(String toPage);

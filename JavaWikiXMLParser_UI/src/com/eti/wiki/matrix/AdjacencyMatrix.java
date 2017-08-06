@@ -52,50 +52,57 @@ public class AdjacencyMatrix extends Matrix{
         return linkCount;
     }	
     public void fillMatrix(){
-        Session session = DatabaseSession.getSessionFactory().openSession();
-        session.beginTransaction();
-        @SuppressWarnings("unchecked")
-        List<Object> references = (List<Object>)session.createSQLQuery(sqlQuery).list();
-        Iterator<Object> itr = references.iterator();
-        int x = 0;
-        int y = 0;
-        while(itr.hasNext()){
-            Object[] obj = (Object[]) itr.next();
-            if(pageIdMapX.containsKey(Integer.valueOf(String.valueOf(obj[0]))))
-            {
-                if(pageIdMapY.containsKey(Integer.valueOf(String.valueOf(obj[2]))))
-                {
-
-                }
-                else
-                {
-                    pageIdMapY.put(Integer.valueOf(String.valueOf(obj[2])), Integer.valueOf(y));
-                    int value =  pageIdMapX.get(Integer.valueOf(String.valueOf(obj[0])));
-                    setMatrix(value, y++, 1.0);					
-                }				
-            }
-            else
-            {
-                if(pageIdMapY.containsKey(Integer.valueOf(String.valueOf(obj[2]))))
-                {
-                    pageIdMapX.put(Integer.valueOf(String.valueOf(obj[0])), Integer.valueOf(x));
-                    int value =  pageIdMapY.get(Integer.valueOf(String.valueOf(obj[2])));
-                    setMatrix(x++, value, 1.0);
-
-                }
-                else
-                {
-                    pageIdMapX.put(Integer.valueOf(String.valueOf(obj[0])), Integer.valueOf(x));
-                    pageIdMapY.put(Integer.valueOf(String.valueOf(obj[2])), Integer.valueOf(y));
-                    setMatrix(x++, y++, 1.0);
-                }
-            }
-            if(x == getSize() || y == getSize())
-            {
-                break;
-            }
-        }
-        session.getTransaction().commit();		
+    	Session session = DatabaseSession.getSessionFactory().getCurrentSession();
+    	try
+    	{
+	        session.getTransaction().begin();
+	        @SuppressWarnings("unchecked")
+	        List<Object> references = (List<Object>)session.createSQLQuery(sqlQuery).list();
+	        Iterator<Object> itr = references.iterator();
+	        int x = 0;
+	        int y = 0;
+	        while(itr.hasNext()){
+	            Object[] obj = (Object[]) itr.next();
+	            if(pageIdMapX.containsKey(Integer.valueOf(String.valueOf(obj[0]))))
+	            {
+	                if(pageIdMapY.containsKey(Integer.valueOf(String.valueOf(obj[2]))))
+	                {
+	
+	                }
+	                else
+	                {
+	                    pageIdMapY.put(Integer.valueOf(String.valueOf(obj[2])), Integer.valueOf(y));
+	                    int value =  pageIdMapX.get(Integer.valueOf(String.valueOf(obj[0])));
+	                    setMatrix(value, y++, 1.0);					
+	                }				
+	            }
+	            else
+	            {
+	                if(pageIdMapY.containsKey(Integer.valueOf(String.valueOf(obj[2]))))
+	                {
+	                    pageIdMapX.put(Integer.valueOf(String.valueOf(obj[0])), Integer.valueOf(x));
+	                    int value =  pageIdMapY.get(Integer.valueOf(String.valueOf(obj[2])));
+	                    setMatrix(x++, value, 1.0);
+	
+	                }
+	                else
+	                {
+	                    pageIdMapX.put(Integer.valueOf(String.valueOf(obj[0])), Integer.valueOf(x));
+	                    pageIdMapY.put(Integer.valueOf(String.valueOf(obj[2])), Integer.valueOf(y));
+	                    setMatrix(x++, y++, 1.0);
+	                }
+	            }
+	            if(x == getSize() || y == getSize())
+	            {
+	                break;
+	            }
+	        }
+	        session.getTransaction().commit();	
+    	}
+    	catch (RuntimeException e) {
+    	    session.getTransaction().rollback();
+    	    throw e;
+    	}
     }
 }
 

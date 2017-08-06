@@ -12,6 +12,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
+
+import org.hibernate.Query;
 import org.hibernate.Session;
 import com.eti.wiki.database.DatabaseSession;
 import com.eti.wiki.matrix.AdjacencyMatrix;
@@ -19,9 +24,10 @@ import com.eti.wiki.matrix.DiagonalMatrix;
 import com.eti.wiki.matrix.IdentityMatrix;
 import com.eti.wiki.matrix.ResultMatrix;
 
-public class Gauss {
+public class Gauss 
+{
     private static final double DAMPING = 0.85;
-    private static final double epsilon = 1E-02;
+    private static final double epsilon = 1E-04;
     private int size;
     private long tStart;
     private double[] vector;
@@ -34,10 +40,14 @@ public class Gauss {
     private AdjacencyMatrix adjacencyMatrix;
     private IdentityMatrix identityMatrix;
     private DiagonalMatrix diagonalMatrix;
-    private Session session;
-    public Gauss(int n) throws FileNotFoundException{
+    private JProgressBar jpb;
+    private JLabel jl;
+    public Gauss(int n, JProgressBar jProgressBar1, JLabel jlabel) throws FileNotFoundException{
+    	this.jpb = jProgressBar1;
+    	this.jl = jlabel;
         this.tStart = System.currentTimeMillis();
         this.size = n;
+        jl.setText("Tworzenie macierzy pomocniczych");
         this.vector = new double[n];
         for (int i = 0; i < n; i++)
         {
@@ -48,13 +58,21 @@ public class Gauss {
         this.U = new double[n][n];
         this.matrixX = new double[n];
         this.matrixX2 = new double[n];
+        jl.setText("Tworzenie macierzy s¹siedztwa");
         this.adjacencyMatrix = new AdjacencyMatrix(n);
+        jl.setText("Tworzenie macierzy jednostkowej");
         this.identityMatrix = new IdentityMatrix(n);
+        jl.setText("Tworzenie macierzy diagonalnej");
         this.diagonalMatrix = new DiagonalMatrix(n, this.adjacencyMatrix.getLinkCount());
-        this.resultMatrix = new ResultMatrix(n, adjacencyMatrix, diagonalMatrix, identityMatrix);
+        jpb.setValue(jProgressBar1.getValue() + 5);
+        this.resultMatrix = new ResultMatrix(n, adjacencyMatrix, diagonalMatrix, identityMatrix, jlabel, jProgressBar1);
     }
-    public  Map<Integer, Double> solveGaussSeidel() throws FileNotFoundException{
+    public  Map<Integer, Double> solveGaussSeidel(JProgressBar jProgressBar1, JLabel jlabel) throws FileNotFoundException
+    {
+    	this.jpb = jProgressBar1;
+    	this.jl = jlabel;
         boolean finish = false;		
+        jl.setText("Tworzenie macierzy U, L, D");
         for(int i = 0; i < size; i++){
             for(int j = 0; j < size; j++){
                 if(i<j){
@@ -90,7 +108,9 @@ public class Gauss {
             {
                 U[i][j] *= D[i][i];
             }
-        }		
+        }	
+        int iter = 1;
+        double minDiff = 0;
         while (!finish)
         {
             for (int i = 0; i < size; i++)
@@ -114,8 +134,18 @@ public class Gauss {
                 if (Math.abs(matrixX[i] - matrixX2[i]) < epsilon)
                 {
                     finish = true;
+                    jl.setText("");
+                    this.jpb.setValue(90);
+                }
+                if(Math.abs(matrixX[i] - matrixX2[i]) < minDiff)
+                {
+                	minDiff = Math.abs(matrixX[i] - matrixX2[i]);
                 }
 
+            }
+            if(!finish)
+            {
+            	jl.setText("Obliczanie.. Iter " + iter++);
             }
         }
         Map<Integer, Double> pageRank = new TreeMap<Integer, Double>();
@@ -129,7 +159,6 @@ public class Gauss {
 
             }
         }
-        this.session = DatabaseSession.getSessionFactory().openSession();
         Map<Integer, Double> sortedPageRank = sortPageRank(pageRank);
      /*   PrintWriter pr = new PrintWriter("D://pagerank.txt");
         for(Map.Entry<Integer, Double> entry : sortedPageRank.entrySet()){
@@ -144,26 +173,33 @@ public class Gauss {
         System.out.println(elapsedSeconds / 60);*/
         return sortedPageRank;
     }
-    public void closeSession(){
-        this.session.getSessionFactory().close();
-    }
-    public String findTitle(Integer key){
-        String id = String.valueOf(key);
-        session.beginTransaction();
-        String sqlQuery = "SELECT * FROM wikipage WHERE id="+id;
-        @SuppressWarnings("unchecked")
-        List<Object> references = (List<Object>)session.createSQLQuery(sqlQuery).list();
-        Iterator<Object> itr = references.iterator();
-        String title = "";
-        while(itr.hasNext()){
-            Object[] obj = (Object[]) itr.next();
-            title = String.valueOf(obj[1]);
-
-        }
-        session.getTransaction().commit();
+    public String findTitle(Integer key)
+    {
+    	String title = "";
+    	Session session = DatabaseSession.getSessionFactory().getCurrentSession();
+    	try
+    	{
+    		session.getTransaction().begin();
+	        String id = String.valueOf(key);
+	        String sqlQuery = "SELECT * FROM wikipage WHERE id="+id;
+	        @SuppressWarnings("unchecked")
+	        List<Object> references = (List<Object>)session.createSQLQuery(sqlQuery).list();
+	        Iterator<Object> itr = references.iterator();
+	        while(itr.hasNext()){
+	            Object[] obj = (Object[]) itr.next();
+	            title = String.valueOf(obj[1]);
+	
+	        }
+	        session.getTransaction().commit();	
+    	}
+    	catch (RuntimeException e) {
+    	    session.getTransaction().rollback();
+    	    throw e;
+    	}
         return title;
     }
-    private Map<Integer, Double> sortPageRank(Map<Integer, Double> pageRank) {
+    private Map<Integer, Double> sortPageRank(Map<Integer, Double> pageRank) 
+    {
         List<Map.Entry<Integer, Double>> list = new LinkedList<Map.Entry<Integer, Double>>(pageRank.entrySet());
         Collections.sort(list, new Comparator<Map.Entry<Integer, Double>>(){
             public int compare(Map.Entry<Integer, Double> o1, Map.Entry<Integer, Double> o2){

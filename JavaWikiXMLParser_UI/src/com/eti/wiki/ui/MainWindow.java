@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -38,11 +39,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -128,8 +132,27 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
   //      jTable1.getColumnModel().getColumn(1).setHeaderRenderer(renderer);
         jTable1.getColumnModel().getColumn(0).setPreferredWidth(20);
         jTable1.getColumnModel().getColumn(1).setPreferredWidth(200);
-        jButton2 = new javax.swing.JButton();
-        
+        jButton2 = new javax.swing.JButton();        
+        btnFaza2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFazaActionPerformed(evt);
+            }
+        });
+        btnFaza3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	btnFazaActionPerformed(evt);
+            }
+        });
+        btnFaza4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	btnFazaActionPerformed(evt);
+            }
+        });
+        btnFaza5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	btnFazaActionPerformed(evt);
+            }
+        });
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -532,11 +555,102 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 5);
         getContentPane().add(jPanel5, gridBagConstraints);
-
+        
+        String[] columnNames2 = {"Tytu³"};
+        jTable2  =  new JTable(new DefaultTableModel(columnNames2, 0));
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btnFazaActionPerformed(ActionEvent evt) {
+    	createPhaseFrame();
+		
+	}
+
+	private static void createPhaseFrame()
+    {
+        EventQueue.invokeLater(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                JFrame frame = new JFrame();
+                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                try 
+                {
+                   UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                } catch (Exception e) {
+                   e.printStackTrace();
+                }
+                JPanel panel = new JPanel();
+                panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+                panel.setOpaque(true);
+                JScrollPane scroller = new JScrollPane();
+                scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+                scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                addTitles();
+                JPanel inputpanel = new JPanel();
+                inputpanel.setLayout(new FlowLayout());
+                JTextField input = new JTextField(20);
+                JButton button = new JButton("Wyœwietl zawartoœæ");
+                panel.add(scroller);
+                inputpanel.add(input);
+                inputpanel.add(button);
+                panel.add(inputpanel);
+                jTable2.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+                    public void valueChanged(ListSelectionEvent event) {
+                    	int rowIndex = jTable2.getSelectedRow();
+                        input.setText(jTable2.getValueAt(rowIndex, 0).toString());
+                    }
+                });
+                button.addActionListener(new java.awt.event.ActionListener() {
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    	if(jTable2.getRowCount() > 0)
+                    	{
+                	    	int rowIndex = jTable2.getSelectedRow();
+                	    	if(rowIndex != -1)
+                	    	{
+                	    		String title = input.getText();
+                	    		String content = parseContent(returnContent(title));
+                	    		createFrame(title, content);
+                	    	}
+                    	}
+                    }
+                });
+                scroller.setViewportView(jTable2);
+                panel.add(scroller);
+                frame.getContentPane().add(BorderLayout.CENTER, panel);
+                frame.pack();
+                frame.setLocationByPlatform(true);
+                frame.setVisible(true);
+                frame.setResizable(true);
+            }
+        });
+    }
+
+	private static void addTitles() {
+		String title = "";
+    	Session session = DatabaseSession.getSessionFactory().getCurrentSession();
+    	try
+    	{
+    		session.getTransaction().begin();
+	        String sqlQuery = "SELECT title FROM wikioccurences";
+	        @SuppressWarnings("unchecked")
+	        List<Object> references = (List<Object>)session.createSQLQuery(sqlQuery).list();
+	        Iterator<Object> itr = references.iterator();
+	        while(itr.hasNext()){
+	            title = (String) itr.next();
+	            DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+	            model.addRow(new Object[]{title});
+	        }
+	        session.getTransaction().commit();	
+    	}
+    	catch (RuntimeException e) {
+    	    session.getTransaction().rollback();
+    	    throw e;
+    	}	
+	}
+
+	private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         final JFileChooser fc = new JFileChooser("E:/");
         int returnVal = fc.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -659,7 +773,9 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		
 	}
     
-    public String parseContent(String content) {
+    public static String parseContent(String content) {
+    	Pattern p = Pattern.compile("<ref[^>]*>(.*?)</ref>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+    	content = p.matcher(content).replaceAll("");
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < content.length(); i++)
 		{
@@ -673,7 +789,6 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		}
 		return sb.toString();
 	}
-
 	public static void createFrame(String title, String content)
     {
         EventQueue.invokeLater(new Runnable()
@@ -702,13 +817,9 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
                 JPanel inputpanel = new JPanel();
                 inputpanel.setLayout(new FlowLayout());
                 textArea.setText(content);
-            //    JTextField input = new JTextField(20);
-           //     JButton button = new JButton("Enter");
                 DefaultCaret caret = (DefaultCaret) textArea.getCaret();
                 caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
                 panel.add(scroller);
-          //      inputpanel.add(input);
-         //       inputpanel.add(button);
                 panel.add(inputpanel);
                 scroller.setSize(10, 10);
                 frame.getContentPane().add(BorderLayout.CENTER, panel);
@@ -716,7 +827,6 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
                 frame.setLocationByPlatform(true);
                 frame.setVisible(true);
                 frame.setResizable(false);
-         //       input.requestFocus();
             }
         });
     }
@@ -893,7 +1003,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
        //     gauss.saveToDatabase(i++, title);
         }
     }
-    public String returnContent(String title)
+    public static String returnContent(String title)
     {
     	Session session = DatabaseSession.getSessionFactory().getCurrentSession();
     	String content = "";
@@ -965,5 +1075,6 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
     private javax.swing.JLabel statusLabel;
     private javax.swing.JLabel statusLabel2;
     private javax.swing.JTextField threshhold;
+    private static JTable jTable2;
     // End of variables declaration//GEN-END:variables
 }

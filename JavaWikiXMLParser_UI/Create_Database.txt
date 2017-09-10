@@ -1,0 +1,56 @@
+﻿CREATE DATABASE `etiwiki` /*!40100 DEFAULT CHARACTER SET utf8 */;
+use etiwiki;
+
+CREATE TABLE `wikioccurences` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(1024) NOT NULL,
+  `content` longtext NOT NULL,
+  `occurences` int(11) NOT NULL,
+  `keywords` varchar(1024) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=18001 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `wikipage` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `wikireference` (
+  `page_id` int(11) NOT NULL,
+  `id` int(12) NOT NULL AUTO_INCREMENT,
+  `reference_id` int(11) NOT NULL,
+  `keyword` text,
+  PRIMARY KEY (`id`),
+  KEY `rid_idx` (`reference_id`),
+  KEY `pid` (`page_id`),
+  CONSTRAINT `pid` FOREIGN KEY (`page_id`) REFERENCES `wikipage` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `rid` FOREIGN KEY (`reference_id`) REFERENCES `wikipage` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `wikireferencekeyword` (
+  `page_id` int(11) NOT NULL,
+  `id` int(12) NOT NULL AUTO_INCREMENT,
+  `reference_id` int(11) NOT NULL,
+  `keyword` text,
+  PRIMARY KEY (`id`),
+  KEY `rid_idx` (`reference_id`),
+  KEY `pid` (`page_id`),
+  CONSTRAINT `pidk` FOREIGN KEY (`page_id`) REFERENCES `wikipage` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `ridk` FOREIGN KEY (`reference_id`) REFERENCES `wikipage` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `wikireferencekeywordall` (
+  `page_id` int(11) NOT NULL,
+  `id` int(12) NOT NULL AUTO_INCREMENT,
+  `reference_id` int(11) NOT NULL,
+  `keyword` text,
+  PRIMARY KEY (`id`),
+  KEY `rid_idx` (`reference_id`),
+  KEY `pid` (`page_id`),
+  CONSTRAINT `pidka` FOREIGN KEY (`page_id`) REFERENCES `wikipage` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `ridka` FOREIGN KEY (`reference_id`) REFERENCES `wikipage` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+

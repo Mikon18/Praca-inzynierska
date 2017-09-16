@@ -210,7 +210,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 
 		faza1.setLayout(new java.awt.GridBagLayout());
 
-		jLabel2.setText("Faza 1 (Wydzielanie ID oraz tytu³u strony do tabeli wikipage):");
+		jLabel2.setText("Faza 0 (Wydzielanie ID oraz tytu³u strony do tabeli wikipage):");
 		gridBagConstraints = new java.awt.GridBagConstraints();
 		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
 		gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -241,7 +241,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 
 		faza2.setLayout(new java.awt.GridBagLayout());
 
-		jLabel3.setText("Faza 2 (Zliczanie wyst¹pieñ wikioccurences):");
+		jLabel3.setText("Faza 1 (Zliczanie wyst¹pieñ wikioccurences):");
 		gridBagConstraints = new java.awt.GridBagConstraints();
 		gridBagConstraints.gridheight = 2;
 		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -303,7 +303,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 
 		faza3.setLayout(new java.awt.GridBagLayout());
 
-		jLabel4.setText("Faza 3 (Szukanie referencji miêdzy wydzielonymi stronami):");
+		jLabel4.setText("Faza 2 (Szukanie referencji miêdzy wydzielonymi stronami):");
 		gridBagConstraints = new java.awt.GridBagConstraints();
 		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
 		gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
@@ -328,7 +328,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 
 		faza4.setLayout(new java.awt.GridBagLayout());
 
-		jLabel5.setText("Faza 4 (Szukanie referencji miêdzy wikioccurences a wszystkimi rekordami):");
+		jLabel5.setText("Faza 3 (Szukanie referencji miêdzy wikioccurences a wszystkimi rekordami):");
 		gridBagConstraints = new java.awt.GridBagConstraints();
 		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
 		gridBagConstraints.weightx = 1.0;
@@ -353,7 +353,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 
 		faza5.setLayout(new java.awt.GridBagLayout());
 
-		jLabel7.setText("Faza 5 (Szukanie stron poprzez referencje wg³¹b):");
+		jLabel7.setText("Faza 4 (Szukanie stron poprzez referencje wg³¹b):");
 		gridBagConstraints = new java.awt.GridBagConstraints();
 		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
 		gridBagConstraints.weightx = 1.0;

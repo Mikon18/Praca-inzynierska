@@ -10,13 +10,21 @@ import java.util.Observer;
 
 import org.slf4j.LoggerFactory;
 
-public class WikiXMLReader extends Observable {
+import com.eti.wiki.ui.IStoppable;
+
+public class WikiXMLReader extends Observable implements IStoppable {
 
 	private String fileName;
 	private BufferedReader fileReader;
+	
+	private boolean isRunning = true;
 
 	public WikiXMLReader(String file) {
 		fileName = file;
+	}
+
+	public void stop() {
+		isRunning = false;
 	}
 
 	public void read() {
@@ -54,6 +62,10 @@ public class WikiXMLReader extends Observable {
 		while (page != null) {
 			setChanged();
 			notifyObservers(page);
+			
+			if(!isRunning){
+				break;
+			}
 
 			page = readPage();
 			if (((counter++) % 100000) == 0) {

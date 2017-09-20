@@ -38,6 +38,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -53,7 +54,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.text.DefaultCaret;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.exception.SQLGrammarException;
 import org.jboss.logging.Logger;
 import org.sweble.wikitext.engine.PageId;
 import org.sweble.wikitext.engine.PageTitle;
@@ -62,8 +66,18 @@ import org.sweble.wikitext.engine.config.WikiConfig;
 import org.sweble.wikitext.engine.nodes.EngProcessedPage;
 import org.sweble.wikitext.engine.output.HtmlRenderer;
 import org.sweble.wikitext.engine.utils.DefaultConfigEnWp;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionListener;
+import javax.swing.event.CaretListener;
+import javax.swing.event.CaretEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class MainWindow extends javax.swing.JFrame implements IParsingProgressListener {
+
+	private IStoppable runningTask = null;
 
 	public MainWindow() {
 		initComponents();
@@ -101,8 +115,6 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		jLabel10 = new javax.swing.JLabel();
 		jTextField4 = new javax.swing.JTextField();
 		btnFaza2 = new javax.swing.JButton();
-		jLabel13 = new javax.swing.JLabel();
-		threshhold = new javax.swing.JTextField();
 		faza3 = new javax.swing.JPanel();
 		jLabel4 = new javax.swing.JLabel();
 		faza3Btn = new javax.swing.JButton();
@@ -142,22 +154,22 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		jButton2 = new javax.swing.JButton();
 		btnFaza2.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				btnFazaActionPerformed(evt);
+				btnFazaActionPerformed("wikioccurences");
 			}
 		});
 		btnFaza3.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				btnFazaActionPerformed(evt);
+				btnFazaActionPerformed("wikireferencekeyword");
 			}
 		});
 		btnFaza4.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				btnFazaActionPerformed(evt);
+				btnFazaActionPerformed("wikireferencekeywordall");
 			}
 		});
 		btnFaza5.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				btnFazaActionPerformed(evt);
+				btnFazaActionPerformed("wikireference");
 			}
 		});
 		jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -211,11 +223,14 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		faza1.setLayout(new java.awt.GridBagLayout());
 
 		jLabel2.setText("Faza 0 (Wydzielanie ID oraz tytu³u strony do tabeli wikipage):");
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-		gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-		gridBagConstraints.weightx = 1.0;
-		faza1.add(jLabel2, gridBagConstraints);
+		gridBagConstraints_1 = new java.awt.GridBagConstraints();
+		gridBagConstraints_1.insets = new Insets(0, 0, 0, 5);
+		gridBagConstraints_1.gridx = 0;
+		gridBagConstraints_1.gridy = 0;
+		gridBagConstraints_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_1.anchor = java.awt.GridBagConstraints.LINE_START;
+		gridBagConstraints_1.weightx = 1.0;
+		faza1.add(jLabel2, gridBagConstraints_1);
 
 		faza1Btn.setText("Uruchom");
 		faza1Btn.addActionListener(new java.awt.event.ActionListener() {
@@ -223,11 +238,14 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 				faza1BtnActionPerformed(evt);
 			}
 		});
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-		gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-		gridBagConstraints.weightx = 0.01;
-		faza1.add(faza1Btn, gridBagConstraints);
+		gridBagConstraints_2 = new java.awt.GridBagConstraints();
+		gridBagConstraints_2.insets = new Insets(0, 0, 0, 5);
+		gridBagConstraints_2.gridx = 1;
+		gridBagConstraints_2.gridy = 0;
+		gridBagConstraints_2.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_2.anchor = java.awt.GridBagConstraints.LINE_END;
+		gridBagConstraints_2.weightx = 0.01;
+		faza1.add(faza1Btn, gridBagConstraints_2);
 
 		btnFaza1.setText("Wyœwietl");
 		btnFaza1.addActionListener(new java.awt.event.ActionListener() {
@@ -235,19 +253,48 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 				btnFaza1ActionPerformed(evt);
 			}
 		});
-		faza1.add(btnFaza1, new java.awt.GridBagConstraints());
+		GridBagConstraints gbc_btnFaza1 = new GridBagConstraints();
+		gbc_btnFaza1.insets = new Insets(0, 0, 0, 5);
+		gbc_btnFaza1.gridx = 2;
+		gbc_btnFaza1.gridy = 0;
+		faza1.add(btnFaza1, gbc_btnFaza1);
 
 		jPanel2.add(faza1);
 
-		faza2.setLayout(new java.awt.GridBagLayout());
+		clearWikiPages = new JButton("Wyczy\u015B\u0107 tabel\u0119");
+		clearWikiPages.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int howMany = truncateTable("wikipage");
+					JOptionPane.showMessageDialog(MainWindow.this, "Usuniêto: " + howMany + " rekordów.",
+							"Wynik usuwania", JOptionPane.INFORMATION_MESSAGE);
+				} catch (SQLGrammarException exc) {
+					JOptionPane.showMessageDialog(MainWindow.this,
+							"Nie uda³o siê wyczyœciæ tabeli. Nale¿y najpierw wyczyœciæ tabelê wikireference (faza 4).",
+							"B³¹d bazy danych", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		GridBagConstraints gbc_clearWikiPages = new GridBagConstraints();
+		gbc_clearWikiPages.gridx = 3;
+		gbc_clearWikiPages.gridy = 0;
+		faza1.add(clearWikiPages, gbc_clearWikiPages);
+
+		GridBagLayout gbl_faza2 = new GridBagLayout();
+		gbl_faza2.rowHeights = new int[] { 0 };
+		gbl_faza2.columnWidths = new int[] { 0 };
+		faza2.setLayout(gbl_faza2);
 
 		jLabel3.setText("Faza 1 (Zliczanie wyst¹pieñ wikioccurences):");
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.gridheight = 2;
-		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-		gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-		gridBagConstraints.weightx = 1.0;
-		faza2.add(jLabel3, gridBagConstraints);
+		gridBagConstraints_3 = new java.awt.GridBagConstraints();
+		gridBagConstraints_3.insets = new Insets(0, 0, 0, 5);
+		gridBagConstraints_3.gridx = 0;
+		gridBagConstraints_3.gridy = 0;
+		gridBagConstraints_3.gridheight = 2;
+		gridBagConstraints_3.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_3.anchor = java.awt.GridBagConstraints.LINE_START;
+		gridBagConstraints_3.weightx = 1.0;
+		faza2.add(jLabel3, gridBagConstraints_3);
 
 		faza2Btn.setText("Uruchom");
 		faza2Btn.addActionListener(new java.awt.event.ActionListener() {
@@ -255,40 +302,82 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 				faza2BtnActionPerformed(evt);
 			}
 		});
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.gridx = 3;
-		gridBagConstraints.gridy = 0;
-		gridBagConstraints.gridheight = 2;
-		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-		gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-		gridBagConstraints.weightx = 0.01;
-		faza2.add(faza2Btn, gridBagConstraints);
+		gridBagConstraints_5 = new java.awt.GridBagConstraints();
+		gridBagConstraints_5.insets = new Insets(0, 0, 0, 5);
+		gridBagConstraints_5.gridx = 3;
+		gridBagConstraints_5.gridy = 0;
+		gridBagConstraints_5.gridheight = 2;
+		gridBagConstraints_5.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_5.anchor = java.awt.GridBagConstraints.LINE_END;
+		gridBagConstraints_5.weightx = 0.01;
+		faza2.add(faza2Btn, gridBagConstraints_5);
 
 		jLabel10.setText("D³ugoœæ kolejki:");
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.gridx = 1;
-		gridBagConstraints.gridy = 0;
-		faza2.add(jLabel10, gridBagConstraints);
+		gridBagConstraints_6 = new java.awt.GridBagConstraints();
+		gridBagConstraints_6.insets = new Insets(0, 0, 5, 5);
+		gridBagConstraints_6.gridx = 1;
+		gridBagConstraints_6.gridy = 0;
+		faza2.add(jLabel10, gridBagConstraints_6);
 
 		jTextField4.setText("6000");
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-		gridBagConstraints.weightx = 0.5;
-		gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
-		faza2.add(jTextField4, gridBagConstraints);
+		gridBagConstraints_4 = new java.awt.GridBagConstraints();
+		gridBagConstraints_4.gridx = 2;
+		gridBagConstraints_4.gridy = 0;
+		gridBagConstraints_4.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_4.weightx = 0.5;
+		gridBagConstraints_4.insets = new Insets(0, 10, 5, 10);
+		faza2.add(jTextField4, gridBagConstraints_4);
 
 		btnFaza2.setText("Wyœwietl");
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.gridx = 4;
-		gridBagConstraints.gridy = 0;
-		gridBagConstraints.gridheight = 2;
-		faza2.add(btnFaza2, gridBagConstraints);
+		gridBagConstraints_7 = new java.awt.GridBagConstraints();
+		gridBagConstraints_7.insets = new Insets(0, 0, 0, 5);
+		gridBagConstraints_7.gridx = 4;
+		gridBagConstraints_7.gridy = 0;
+		gridBagConstraints_7.gridheight = 2;
+		faza2.add(btnFaza2, gridBagConstraints_7);
+
+		clearWikiOccurences = new JButton("Wyczy\u015B\u0107 tabel\u0119");
+		clearWikiOccurences.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int howMany = truncateTable("wikioccurences");
+					JOptionPane.showMessageDialog(MainWindow.this, "Usuniêto: " + howMany + " rekordów.",
+							"Wynik usuwania", JOptionPane.INFORMATION_MESSAGE);
+				} catch (SQLGrammarException exc) {
+					JOptionPane.showMessageDialog(MainWindow.this,
+							"Nie uda³o siê wyczyœciæ tabeli. Nale¿y najpierw wyczyœciæ tabelê wikireference (faza 4).",
+							"B³¹d bazy danych", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		GridBagConstraints gbc_clearWikiOccurences = new GridBagConstraints();
+		gbc_clearWikiOccurences.gridheight = 2;
+		gbc_clearWikiOccurences.gridx = 5;
+		gbc_clearWikiOccurences.gridy = 0;
+		faza2.add(clearWikiOccurences, gbc_clearWikiOccurences);
+		jLabel13 = new javax.swing.JLabel();
 
 		jLabel13.setText("Threshhold:");
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.gridx = 1;
-		gridBagConstraints.gridy = 1;
-		faza2.add(jLabel13, gridBagConstraints);
+		gridBagConstraints_8 = new java.awt.GridBagConstraints();
+		gridBagConstraints_8.insets = new Insets(0, 0, 0, 5);
+		gridBagConstraints_8.gridx = 1;
+		gridBagConstraints_8.gridy = 1;
+		faza2.add(jLabel13, gridBagConstraints_8);
+		threshhold = new javax.swing.JTextField();
+		threshhold.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String thr = threshhold.getText();
+				try {
+					Integer thrInt = Integer.parseInt(thr);
+					if (thrInt < 0) {
+						threshhold.setText("0");
+					}
+				} catch (Exception excd) {
+					threshhold.setText("0");
+				}
+			}
+		});
 
 		threshhold.setText("5");
 		gridBagConstraints = new java.awt.GridBagConstraints();
@@ -296,7 +385,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		gridBagConstraints.gridy = 1;
 		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
 		gridBagConstraints.weightx = 0.5;
-		gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
+		gridBagConstraints.insets = new Insets(0, 10, 0, 10);
 		faza2.add(threshhold, gridBagConstraints);
 
 		jPanel2.add(faza2);
@@ -304,11 +393,14 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		faza3.setLayout(new java.awt.GridBagLayout());
 
 		jLabel4.setText("Faza 2 (Szukanie referencji miêdzy wydzielonymi stronami):");
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-		gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-		gridBagConstraints.weightx = 1.0;
-		faza3.add(jLabel4, gridBagConstraints);
+		gridBagConstraints_9 = new java.awt.GridBagConstraints();
+		gridBagConstraints_9.insets = new Insets(0, 0, 0, 5);
+		gridBagConstraints_9.gridx = 0;
+		gridBagConstraints_9.gridy = 0;
+		gridBagConstraints_9.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_9.anchor = java.awt.GridBagConstraints.LINE_START;
+		gridBagConstraints_9.weightx = 1.0;
+		faza3.add(jLabel4, gridBagConstraints_9);
 
 		faza3Btn.setText("Uruchom");
 		faza3Btn.addActionListener(new java.awt.event.ActionListener() {
@@ -316,23 +408,52 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 				faza3BtnActionPerformed(evt);
 			}
 		});
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-		gridBagConstraints.weightx = 0.01;
-		faza3.add(faza3Btn, gridBagConstraints);
+		gridBagConstraints_10 = new java.awt.GridBagConstraints();
+		gridBagConstraints_10.insets = new Insets(0, 0, 0, 5);
+		gridBagConstraints_10.gridx = 1;
+		gridBagConstraints_10.gridy = 0;
+		gridBagConstraints_10.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_10.weightx = 0.01;
+		faza3.add(faza3Btn, gridBagConstraints_10);
 
 		btnFaza3.setText("Wyœwietl");
-		faza3.add(btnFaza3, new java.awt.GridBagConstraints());
+		GridBagConstraints gbc_btnFaza3 = new GridBagConstraints();
+		gbc_btnFaza3.insets = new Insets(0, 0, 0, 5);
+		gbc_btnFaza3.gridx = 2;
+		gbc_btnFaza3.gridy = 0;
+		faza3.add(btnFaza3, gbc_btnFaza3);
 
 		jPanel2.add(faza3);
+
+		clearWikiReferencesKeyword = new JButton("Wyczy\u015B\u0107 tabel\u0119");
+		clearWikiReferencesKeyword.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int howMany = truncateTable("wikireferencekeyword");
+					JOptionPane.showMessageDialog(MainWindow.this, "Usuniêto: " + howMany + " rekordów.",
+							"Wynik usuwania", JOptionPane.INFORMATION_MESSAGE);
+				} catch (SQLGrammarException exc) {
+					JOptionPane.showMessageDialog(MainWindow.this,
+							"Nie uda³o siê wyczyœciæ tabeli. Nale¿y najpierw wyczyœciæ tabelê wikireference (faza 4).",
+							"B³¹d bazy danych", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		GridBagConstraints gbc_clearWikiReferencesKeyword = new GridBagConstraints();
+		gbc_clearWikiReferencesKeyword.gridx = 3;
+		gbc_clearWikiReferencesKeyword.gridy = 0;
+		faza3.add(clearWikiReferencesKeyword, gbc_clearWikiReferencesKeyword);
 
 		faza4.setLayout(new java.awt.GridBagLayout());
 
 		jLabel5.setText("Faza 3 (Szukanie referencji miêdzy wikioccurences a wszystkimi rekordami):");
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-		gridBagConstraints.weightx = 1.0;
-		faza4.add(jLabel5, gridBagConstraints);
+		gridBagConstraints_11 = new java.awt.GridBagConstraints();
+		gridBagConstraints_11.insets = new Insets(0, 0, 0, 5);
+		gridBagConstraints_11.gridx = 0;
+		gridBagConstraints_11.gridy = 0;
+		gridBagConstraints_11.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_11.weightx = 1.0;
+		faza4.add(jLabel5, gridBagConstraints_11);
 
 		faza4Btn.setText("Uruchom");
 		faza4Btn.addActionListener(new java.awt.event.ActionListener() {
@@ -340,24 +461,51 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 				faza4BtnActionPerformed(evt);
 			}
 		});
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.gridx = 1;
-		gridBagConstraints.gridy = 0;
-		gridBagConstraints.weightx = 0.01;
-		faza4.add(faza4Btn, gridBagConstraints);
+		gridBagConstraints_12 = new java.awt.GridBagConstraints();
+		gridBagConstraints_12.insets = new Insets(0, 0, 0, 5);
+		gridBagConstraints_12.gridx = 1;
+		gridBagConstraints_12.gridy = 0;
+		gridBagConstraints_12.weightx = 0.01;
+		faza4.add(faza4Btn, gridBagConstraints_12);
 
 		btnFaza4.setText("Wyœwietl");
-		faza4.add(btnFaza4, new java.awt.GridBagConstraints());
+		GridBagConstraints gbc_btnFaza4 = new GridBagConstraints();
+		gbc_btnFaza4.insets = new Insets(0, 0, 0, 5);
+		gbc_btnFaza4.gridx = 2;
+		gbc_btnFaza4.gridy = 0;
+		faza4.add(btnFaza4, gbc_btnFaza4);
 
 		jPanel2.add(faza4);
+
+		clearWikiReferenceKeywordAll = new JButton("Wyczy\u015B\u0107 tabel\u0119");
+		clearWikiReferenceKeywordAll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int howMany = truncateTable("wikireferencekeywordall");
+					JOptionPane.showMessageDialog(MainWindow.this, "Tabela `wikireferencekeywordall` wyczyszczona.",
+							"Wynik usuwania", JOptionPane.INFORMATION_MESSAGE);
+				} catch (SQLGrammarException exc) {
+					JOptionPane.showMessageDialog(MainWindow.this,
+							"Nie uda³o siê wyczyœciæ tabeli. Nale¿y najpierw wyczyœciæ tabelê wikireference (faza 4).",
+							"B³¹d bazy danych", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		GridBagConstraints gbc_clearWikiReferenceKeywordAll = new GridBagConstraints();
+		gbc_clearWikiReferenceKeywordAll.gridx = 3;
+		gbc_clearWikiReferenceKeywordAll.gridy = 0;
+		faza4.add(clearWikiReferenceKeywordAll, gbc_clearWikiReferenceKeywordAll);
 
 		faza5.setLayout(new java.awt.GridBagLayout());
 
 		jLabel7.setText("Faza 4 (Szukanie stron poprzez referencje wg³¹b):");
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-		gridBagConstraints.weightx = 1.0;
-		faza5.add(jLabel7, gridBagConstraints);
+		gridBagConstraints_13 = new java.awt.GridBagConstraints();
+		gridBagConstraints_13.insets = new Insets(0, 0, 5, 5);
+		gridBagConstraints_13.gridx = 0;
+		gridBagConstraints_13.gridy = 0;
+		gridBagConstraints_13.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_13.weightx = 1.0;
+		faza5.add(jLabel7, gridBagConstraints_13);
 
 		faza5Btn.setText("Uruchom");
 		faza5Btn.addActionListener(new java.awt.event.ActionListener() {
@@ -368,7 +516,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		gridBagConstraints = new java.awt.GridBagConstraints();
 		gridBagConstraints.gridx = 3;
 		gridBagConstraints.gridy = 0;
-		gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+		gridBagConstraints.insets = new Insets(0, 10, 5, 5);
 		faza5.add(faza5Btn, gridBagConstraints);
 
 		jLabel8.setText("G³êbokoœæ:");
@@ -376,22 +524,46 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		gridBagConstraints.gridx = 1;
 		gridBagConstraints.gridy = 0;
 		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-		gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+		gridBagConstraints.insets = new Insets(0, 10, 5, 5);
 		faza5.add(jLabel8, gridBagConstraints);
 
 		jTextField3.setText("2");
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-		gridBagConstraints.weightx = 0.2;
-		faza5.add(jTextField3, gridBagConstraints);
+		gridBagConstraints_14 = new java.awt.GridBagConstraints();
+		gridBagConstraints_14.insets = new Insets(0, 0, 5, 5);
+		gridBagConstraints_14.gridx = 2;
+		gridBagConstraints_14.gridy = 0;
+		gridBagConstraints_14.fill = java.awt.GridBagConstraints.HORIZONTAL;
+		gridBagConstraints_14.weightx = 0.2;
+		faza5.add(jTextField3, gridBagConstraints_14);
 
 		btnFaza5.setText("Wyœwietl");
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.gridx = 4;
-		gridBagConstraints.gridy = 0;
-		faza5.add(btnFaza5, gridBagConstraints);
+		gridBagConstraints_15 = new java.awt.GridBagConstraints();
+		gridBagConstraints_15.insets = new Insets(0, 0, 5, 0);
+		gridBagConstraints_15.gridx = 4;
+		gridBagConstraints_15.gridy = 0;
+		faza5.add(btnFaza5, gridBagConstraints_15);
 
 		jPanel2.add(faza5);
+
+		clearWikiReferences = new JButton("Wyczy\u015B\u0107 tabel\u0119");
+		clearWikiReferences.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int howMany = truncateTable("wikireference");
+					JOptionPane.showMessageDialog(MainWindow.this, "Tabela `wikireference` wyczyszczona.",
+							"Wynik usuwania", JOptionPane.INFORMATION_MESSAGE);
+				} catch (SQLGrammarException exc) {
+					JOptionPane.showMessageDialog(MainWindow.this,
+							"Nie uda³o siê wyczyœciæ tabeli. Nale¿y najpierw wyczyœciæ tabelê wikireference (faza 4).",
+							"B³¹d bazy danych", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		GridBagConstraints gbc_clearWikiReferences = new GridBagConstraints();
+		gbc_clearWikiReferences.insets = new Insets(0, 0, 5, 0);
+		gbc_clearWikiReferences.gridx = 5;
+		gbc_clearWikiReferences.gridy = 0;
+		faza5.add(clearWikiReferences, gbc_clearWikiReferences);
 
 		gridBagConstraints = new java.awt.GridBagConstraints();
 		gridBagConstraints.gridx = 0;
@@ -489,7 +661,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		gridBagConstraints.gridx = 2;
 		gridBagConstraints.gridy = 0;
 		gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-		gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+		gridBagConstraints.insets = new Insets(5, 0, 5, 5);
 		jPanel5.add(jButton7, gridBagConstraints);
 
 		jLabel11.setText("Tytu³y wydzielonych stron:");
@@ -509,18 +681,34 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		gridBagConstraints.gridy = 0;
 		gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
 		gridBagConstraints.weightx = 1.0;
-		gridBagConstraints.insets = new java.awt.Insets(5, 10, 0, 0);
+		gridBagConstraints.insets = new Insets(5, 10, 5, 5);
 		jPanel5.add(jLabel12, gridBagConstraints);
 
 		jTextField6.setText("6000");
 		jTextField6.setCaretPosition(1);
 		jTextField6.setPreferredSize(new java.awt.Dimension(20, 30));
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.gridx = 1;
-		gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-		gridBagConstraints.weightx = 1.0;
-		gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
-		jPanel5.add(jTextField6, gridBagConstraints);
+		gridBagConstraints_16 = new java.awt.GridBagConstraints();
+		gridBagConstraints_16.gridy = 0;
+		gridBagConstraints_16.gridx = 1;
+		gridBagConstraints_16.fill = java.awt.GridBagConstraints.BOTH;
+		gridBagConstraints_16.weightx = 1.0;
+		gridBagConstraints_16.insets = new Insets(5, 0, 5, 5);
+		jPanel5.add(jTextField6, gridBagConstraints_16);
+
+		breaker = new JButton("Przerwij");
+		breaker.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (runningTask != null) {
+					runningTask.stop();
+				}
+			}
+		});
+		GridBagConstraints gbc_breaker = new GridBagConstraints();
+		gbc_breaker.fill = GridBagConstraints.BOTH;
+		gbc_breaker.insets = new Insets(5, 0, 5, 10);
+		gbc_breaker.gridx = 4;
+		gbc_breaker.gridy = 0;
+		jPanel5.add(breaker, gbc_breaker);
 
 		jScrollPane1.setPreferredSize(new java.awt.Dimension(425, 120));
 
@@ -535,7 +723,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		gridBagConstraints = new java.awt.GridBagConstraints();
 		gridBagConstraints.gridx = 1;
 		gridBagConstraints.gridy = 1;
-		gridBagConstraints.gridwidth = 3;
+		gridBagConstraints.gridwidth = 4;
 		gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
 		gridBagConstraints.weightx = 1.0;
 		gridBagConstraints.weighty = 1.0;
@@ -547,7 +735,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		gridBagConstraints.gridx = 3;
 		gridBagConstraints.gridy = 0;
 		gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-		gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 10);
+		gridBagConstraints.insets = new Insets(5, 0, 5, 5);
 		jPanel5.add(jButton2, gridBagConstraints);
 
 		gridBagConstraints = new java.awt.GridBagConstraints();
@@ -563,12 +751,18 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		pack();
 	}// </editor-fold>//GEN-END:initComponents
 
-	private void btnFazaActionPerformed(ActionEvent evt) {
-		createPhaseFrame();
+	private void btnFazaActionPerformed(String tableName) {
+		createPhaseFrame(tableName);
 
 	}
 
-	private static void createPhaseFrame() {
+	private int truncateTable(String tableName) {
+		String hql = String.format("truncate table %s", tableName);
+		Query query = DatabaseSession.getSessionFactory().openSession().createSQLQuery(hql);
+		return query.executeUpdate();
+	}
+
+	private static void createPhaseFrame(String tableName) {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -585,7 +779,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 				JScrollPane scroller = new JScrollPane();
 				scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 				scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-				addTitles();
+				addTitles(tableName);
 				JPanel inputpanel = new JPanel();
 				inputpanel.setLayout(new FlowLayout());
 				JTextField input = new JTextField(20);
@@ -597,7 +791,9 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 				jTable2.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 					public void valueChanged(ListSelectionEvent event) {
 						int rowIndex = jTable2.getSelectedRow();
-						input.setText(jTable2.getValueAt(rowIndex, 0).toString());
+						if (rowIndex != -1) {
+							input.setText(jTable2.getValueAt(rowIndex, 0).toString());
+						}
 					}
 				});
 				button.addActionListener(new java.awt.event.ActionListener() {
@@ -623,23 +819,37 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		});
 	}
 
-	private static void addTitles() {
-		String title = "";
+	private static void addTitles(String table) {
+		Object title;
 		Session session = DatabaseSession.getSessionFactory().getCurrentSession();
+		Transaction t = session.getTransaction();
 		try {
-			session.getTransaction().begin();
-			String sqlQuery = "SELECT title FROM wikioccurences";
+			DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+			if (model.getRowCount() > 0) {
+				for (int i = model.getRowCount() - 1; i > -1; i--) {
+					model.removeRow(i);
+				}
+			}
+
+			t.begin();
+			String sqlQuery = null;
+			if (table.contains("reference")) {
+				sqlQuery = "SELECT reference_id FROM " + table;
+			} else {
+				sqlQuery = "SELECT title FROM " + table;
+			}
+
 			@SuppressWarnings("unchecked")
 			List<Object> references = (List<Object>) session.createSQLQuery(sqlQuery).list();
 			Iterator<Object> itr = references.iterator();
 			while (itr.hasNext()) {
-				title = (String) itr.next();
-				DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+				title = itr.next();
+
 				model.addRow(new Object[] { title });
 			}
-			session.getTransaction().commit();
+			t.commit();
 		} catch (RuntimeException e) {
-			session.getTransaction().rollback();
+			e.printStackTrace();
 			throw e;
 		}
 	}
@@ -659,7 +869,14 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 
 	private void faza1BtnActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_faza1BtnActionPerformed
 		postep_label.setText("Faza 1");
-		Configuration.MAX_QUEUE_SIZE = Integer.parseInt(jTextField4.getText());
+		// Integer intQueueSize = Integer.parseInt(jTextField4.getText());
+		// if(intQueueSize < 0){
+		// JOptionPane.showMessageDialog(MainWindow.this,
+		// "Zwiêksz rozmiar kolejki.", "Niepoprawna wartoœæ",
+		// JOptionPane.ERROR_MESSAGE);
+		// return;
+		// }
+		// Configuration.MAX_QUEUE_SIZE = intQueueSize;
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -671,8 +888,19 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 	}// GEN-LAST:event_faza1BtnActionPerformed
 
 	private void faza2BtnActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_faza2BtnActionPerformed
+		Integer intQueueSize = Integer.parseInt(jTextField4.getText());
+		if (intQueueSize < 0) {
+			JOptionPane.showMessageDialog(MainWindow.this, "Zwiêksz rozmiar kolejki.", "Niepoprawna wartoœæ",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		Configuration.MAX_QUEUE_SIZE = intQueueSize;
 		try {
-			Configuration.OCCURENCES_THRESHOLD = Integer.parseInt(threshhold.getText());
+			Integer intThreshhold = Integer.parseInt(threshhold.getText());
+			if (intThreshhold < 0) {
+				throw new NumberFormatException();
+			}
+			Configuration.OCCURENCES_THRESHOLD = intThreshhold;
 		} catch (Exception e) {
 			statusLabel.setText("Niepoprawna wartoœæ pola Threshhold!");
 			return;
@@ -722,6 +950,12 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 	private void faza5BtnActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_faza5BtnActionPerformed
 		String[] splits = jTextField2.getText().split(",");
 		Integer depth = Integer.parseInt(jTextField3.getText());
+
+		if (depth < 0) {
+			JOptionPane.showMessageDialog(MainWindow.this, "Z³a wartoœæ pola G³êbokoœæ.", "Niepoprawna wartoœæ",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 
 		postep_label.setText("Faza 5");
 		new Thread(new Runnable() {
@@ -803,7 +1037,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 				// JScrollPane scroller = new JScrollPane(textArea);
 				JScrollPane scroller = new JScrollPane(label);
 				scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-				scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+				scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 				JPanel inputpanel = new JPanel();
 				inputpanel.setLayout(new FlowLayout());
 
@@ -833,13 +1067,13 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 				frame.pack();
 				frame.setLocationByPlatform(true);
 				frame.setVisible(true);
-				frame.setResizable(false);
+				frame.setResizable(true);
 			}
 		});
 	}
 
 	private void btnFaza1ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_btnFaza1ActionPerformed
-		// TODO add your handling code here:
+		btnFazaActionPerformed("wikipage");
 	}// GEN-LAST:event_btnFaza1ActionPerformed
 
 	private void setButtons(boolean to) {
@@ -853,6 +1087,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		jTextField1.setEnabled(to);
 		jTextField2.setEnabled(to);
 		jTextField3.setEnabled(to);
+		breaker.setEnabled(!to);
 	}
 
 	public static void main(String args[]) {
@@ -914,7 +1149,15 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		parser.addObserver(processor);
 
 		// rozpocznij pracê
-		reader.read();
+		try {
+			runningTask = reader;
+			reader.read();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(MainWindow.this,
+					"Nie uda³o wczytaæ plik. Sprawdz czy plik jest w poprawnym formacie.", "B³¹d bazy danych",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 	}
 
 	private void phase2(String[] words) {
@@ -941,7 +1184,15 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		parser.addObserver(processor);
 
 		// rozpocznij pracê
-		reader.read();
+		try {
+			runningTask = reader;
+			reader.read();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(MainWindow.this,
+					"Nie uda³o wczytaæ plik. Sprawdz czy plik jest w poprawnym formacie.", "B³¹d bazy danych",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 
 		// wstaw do bazy rekordy z kolekcji
 		processor.finishJob();
@@ -960,7 +1211,15 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		OccurencesFinder finder = new OccurencesFinder(this);
 
 		// rozpoczêcie pracy
-		finder.findReferences();
+		try {
+			runningTask = finder;
+			finder.findReferences();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(MainWindow.this,
+					"Nie uda³o wczytaæ plik. Sprawdz czy plik jest w poprawnym formacie.", "B³¹d bazy danych",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 
 		// wyczyœæ s³ówka
 		Configuration.KEYWORDS.clear();
@@ -993,7 +1252,15 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		finder.findReferences();
 
 		// rozpocznij pracê
-		reader.read();
+		try {
+			runningTask = reader;
+			reader.read();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(MainWindow.this,
+					"Nie uda³o wczytaæ plik. Sprawdz czy plik jest w poprawnym formacie.", "B³¹d bazy danych",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 
 		// wyczyœæ s³ówka
 		Configuration.KEYWORDS.clear();
@@ -1001,7 +1268,15 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 
 	private void phase5(String word, int depth) {
 		GraphFileReader reader = new GraphFileReader(jTextField1.getText(), this, depth);
-		reader.readLayer(word, depth);
+		try {
+			runningTask = reader;
+			reader.readLayer(word, depth);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(MainWindow.this,
+					"Nie uda³o wczytaæ plik. Sprawdz czy plik jest w poprawnym formacie.", "B³¹d bazy danych",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 	}
 
 	private void pagerank() throws FileNotFoundException {
@@ -1033,6 +1308,9 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		} catch (RuntimeException e) {
 			session.getTransaction().rollback();
 			throw e;
+		} finally {
+			if (session.isOpen())
+				session.close();
 		}
 		return content;
 	}
@@ -1087,5 +1365,27 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 	private javax.swing.JLabel statusLabel2;
 	private javax.swing.JTextField threshhold;
 	private static JTable jTable2;
+	private GridBagConstraints gridBagConstraints_1;
+	private GridBagConstraints gridBagConstraints_2;
+	private JButton clearWikiPages;
+	private GridBagConstraints gridBagConstraints_3;
+	private GridBagConstraints gridBagConstraints_4;
+	private JButton clearWikiOccurences;
+	private GridBagConstraints gridBagConstraints_5;
+	private GridBagConstraints gridBagConstraints_6;
+	private GridBagConstraints gridBagConstraints_7;
+	private GridBagConstraints gridBagConstraints_8;
+	private GridBagConstraints gridBagConstraints_9;
+	private GridBagConstraints gridBagConstraints_10;
+	private JButton clearWikiReferencesKeyword;
+	private GridBagConstraints gridBagConstraints_11;
+	private JButton clearWikiReferenceKeywordAll;
+	private GridBagConstraints gridBagConstraints_12;
+	private GridBagConstraints gridBagConstraints_13;
+	private GridBagConstraints gridBagConstraints_14;
+	private JButton clearWikiReferences;
+	private GridBagConstraints gridBagConstraints_15;
+	private GridBagConstraints gridBagConstraints_16;
+	private JButton breaker;
 	// End of variables declaration//GEN-END:variables
 }

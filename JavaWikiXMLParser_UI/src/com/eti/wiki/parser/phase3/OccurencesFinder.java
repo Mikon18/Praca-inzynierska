@@ -22,8 +22,9 @@ import com.eti.wiki.model.ReferenceKeyword;
 import com.eti.wiki.model.WikiOccurences;
 import com.eti.wiki.model.collection.ReferenceConnection;
 import com.eti.wiki.ui.IParsingProgressListener;
+import com.eti.wiki.ui.IStoppable;
 
-public class OccurencesFinder {
+public class OccurencesFinder implements IStoppable{
     // map title to occurence
 
     private Map<String, WikiOccurences> occurences;
@@ -31,6 +32,11 @@ public class OccurencesFinder {
     private LinkedList<ReferenceConnection> connections;
     private IParsingProgressListener listener;
     private int found_occurences;
+    private boolean isRunning = true;
+    
+    public void stop(){
+    	isRunning = false;
+    }
 
     public OccurencesFinder(IParsingProgressListener listener) {
         this.listener = listener;
@@ -54,11 +60,18 @@ public class OccurencesFinder {
         for (Entry<String, WikiOccurences> occurence : occurences.entrySet()) {
             Set<String> references = parseReferences(occurence.getValue().getContent());
 
+        	if(!isRunning){
+        		break;
+        	}
+        	
             if (counter % 1000 == 0) {
                 listener.currentlyProcessedPageChanged(occurence.getValue().getTitle());
             }
 
             for (String reference : references) {
+            	if(!isRunning){
+            		break;
+            	}
                 if (occurences.containsKey(reference)) {
                     Page parent = pages.get(occurence.getValue().getTitle());
                     Page referencePage = pages.get(occurences.get(reference).getTitle());
@@ -102,6 +115,11 @@ public class OccurencesFinder {
 
         int referenceStart = substring.indexOf("[["), referenceEnd = -1;
         while (referenceStart > 0) {
+
+        	if(!isRunning){
+        		break;
+        	}
+        	
             referenceEnd = substring.indexOf("]]");
             if (referenceEnd > 0) {
                 try {

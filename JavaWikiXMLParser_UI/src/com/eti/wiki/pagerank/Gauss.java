@@ -23,6 +23,7 @@ import com.eti.wiki.matrix.AdjacencyMatrix;
 import com.eti.wiki.matrix.DiagonalMatrix;
 import com.eti.wiki.matrix.IdentityMatrix;
 import com.eti.wiki.matrix.ResultMatrix;
+import com.eti.wiki.model.PageRank;
 
 public class Gauss 
 {
@@ -176,7 +177,7 @@ public class Gauss
     public String findTitle(Integer key)
     {
     	String title = "";
-    	Session session = DatabaseSession.getSessionFactory().getCurrentSession();
+    	Session session = DatabaseSession.getSessionFactory().openSession();
     	try
     	{
     		session.getTransaction().begin();
@@ -196,6 +197,7 @@ public class Gauss
     	    session.getTransaction().rollback();
     	    throw e;
     	}
+    	session.close();
         return title;
     }
     private Map<Integer, Double> sortPageRank(Map<Integer, Double> pageRank) 
@@ -207,11 +209,42 @@ public class Gauss
             }
         });
         Map<Integer, Double> sortedPageRank = new LinkedHashMap<Integer, Double>();
+        deletePageRank();
+        jl.setText("Zapisywanie wyników do bazy");
         for(Map.Entry<Integer, Double> entry : list){
             sortedPageRank.put(entry.getKey(), entry.getValue());
+            saveToDatabase(entry.getKey(), entry.getValue());
         }
         return sortedPageRank;
     }
-
+	private void deletePageRank() {
+		Session session = DatabaseSession.getSessionFactory().openSession();
+		try {
+			session.getTransaction().begin();
+	        Query query = session.createQuery("DELETE FROM PageRank");
+	        query.executeUpdate();
+	        session.getTransaction().commit();
+		} catch (RuntimeException e) {
+    	    session.getTransaction().rollback();
+    	    throw e;
+    	}	
+		session.close();
+	}
+	public void saveToDatabase(Integer id, double value) {
+		Session session = DatabaseSession.getSessionFactory().openSession();
+		try {
+			session.getTransaction().begin();
+        	PageRank pr = new PageRank();
+        	pr.setTitle(findTitle(id));
+        	pr.setValue(value);
+        	pr.setRef_id(id);
+        	session.save(pr);
+	        session.getTransaction().commit();
+		} catch (RuntimeException e) {
+    	    session.getTransaction().rollback();
+    	    throw e;
+    	}
+		session.close();
+	}
 }
 

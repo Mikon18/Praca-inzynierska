@@ -24,9 +24,11 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,7 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -74,11 +77,13 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.CaretEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.Dimension;
+import javax.swing.border.EmptyBorder;
 
 public class MainWindow extends javax.swing.JFrame implements IParsingProgressListener {
 
 	private IStoppable runningTask = null;
-
+	
 	public MainWindow() {
 		initComponents();
 	}
@@ -101,10 +106,12 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		java.awt.GridBagConstraints gridBagConstraints;
 
 		jPanel1 = new javax.swing.JPanel();
+		jPanel1.setBorder(new EmptyBorder(10, 10, 0, 10));
 		jLabel1 = new javax.swing.JLabel();
 		jTextField1 = new javax.swing.JTextField();
 		jButton1 = new javax.swing.JButton();
 		jPanel2 = new javax.swing.JPanel();
+		jPanel2.setBorder(new EmptyBorder(0, 10, 0, 10));
 		faza1 = new javax.swing.JPanel();
 		jLabel2 = new javax.swing.JLabel();
 		faza1Btn = new javax.swing.JButton();
@@ -130,6 +137,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		jTextField3 = new javax.swing.JTextField();
 		btnFaza5 = new javax.swing.JButton();
 		jPanel3 = new javax.swing.JPanel();
+		jPanel3.setBorder(new EmptyBorder(0, 10, 0, 10));
 		jLabel6 = new javax.swing.JLabel();
 		jTextField2 = new javax.swing.JTextField();
 		jPanel4 = new javax.swing.JPanel();
@@ -139,19 +147,8 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		statusLabel = new javax.swing.JLabel();
 		statusLabel2 = new javax.swing.JLabel();
 		jPanel5 = new javax.swing.JPanel();
-		jButton7 = new javax.swing.JButton();
 		jLabel11 = new javax.swing.JLabel();
-		jLabel12 = new javax.swing.JLabel();
-		jTextField6 = new javax.swing.JTextField();
-		jScrollPane1 = new javax.swing.JScrollPane();
-		String[] columnNames = { "Lp.", "Tytu³", "PageRank" };
-		jTable1 = new javax.swing.JTable(new DefaultTableModel(columnNames, 0));
-		// TableCellRenderer renderer = new DefaultTableCellRenderer();
-		// ((JLabel) renderer).setHorizontalAlignment(SwingConstants.CENTER);
-		// jTable1.getColumnModel().getColumn(1).setHeaderRenderer(renderer);
-		jTable1.getColumnModel().getColumn(0).setPreferredWidth(20);
-		jTable1.getColumnModel().getColumn(1).setPreferredWidth(200);
-		jButton2 = new javax.swing.JButton();
+		String[] columnNames = { "Lp.", "Tytu³", "PageRank", "Id" };
 		btnFaza2.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				btnFazaActionPerformed("wikioccurences");
@@ -172,15 +169,10 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 				btnFazaActionPerformed("wikireference");
 			}
 		});
-		jButton2.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				jButton2ActionPerformed(evt);
-			}
-		});
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-		setMinimumSize(new java.awt.Dimension(800, 600));
-		setPreferredSize(new java.awt.Dimension(800, 700));
+		setMinimumSize(new Dimension(1024, 768));
+		setPreferredSize(new Dimension(1024, 768));
 		setResizable(false);
 		getContentPane().setLayout(new java.awt.GridBagLayout());
 
@@ -598,7 +590,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		gridBagConstraints.weighty = 0.01;
 		getContentPane().add(jPanel3, gridBagConstraints);
 
-		jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+		jPanel4.setBorder(new EmptyBorder(0, 10, 0, 10));
 		jPanel4.setLayout(new java.awt.GridBagLayout());
 
 		jLabel9.setText("Postêp:");
@@ -646,23 +638,33 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
 		getContentPane().add(jPanel4, gridBagConstraints);
 
-		jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
-		jPanel5.setMinimumSize(new java.awt.Dimension(47, 14));
-		jPanel5.setPreferredSize(new java.awt.Dimension(183, 44));
-		jPanel5.setLayout(new java.awt.GridBagLayout());
+		jPanel5.setBorder(new EmptyBorder(0, 10, 0, 10));
+		GridBagLayout gbl_jPanel5 = new GridBagLayout();
+		gbl_jPanel5.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		jPanel5.setLayout(gbl_jPanel5);
+		jLabel12 = new javax.swing.JLabel();
+		// jPanel5.add(jLabel11, gridBagConstraints);
 
-		jButton7.setText("Uruchom");
-		jButton7.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				jButton7ActionPerformed(evt);
-			}
-		});
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.gridx = 2;
-		gridBagConstraints.gridy = 0;
-		gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-		gridBagConstraints.insets = new Insets(5, 0, 5, 5);
-		jPanel5.add(jButton7, gridBagConstraints);
+		jLabel12.setText("Maksymalna ilo\u015B\u0107 stron:");
+		gridBagConstraints_17 = new java.awt.GridBagConstraints();
+		gridBagConstraints_17.insets = new Insets(10, 0, 5, 0);
+		gridBagConstraints_17.gridy = 0;
+		gridBagConstraints_17.gridx = 0;
+		gridBagConstraints_17.anchor = GridBagConstraints.NORTH;
+		gridBagConstraints_17.weightx = 1.0;
+		jPanel5.add(jLabel12, gridBagConstraints_17);
+		jTextField6 = new javax.swing.JTextField();
+		
+				jTextField6.setText("6000");
+				jTextField6.setCaretPosition(1);
+				jTextField6.setPreferredSize(new Dimension(30, 30));
+				gridBagConstraints_16 = new java.awt.GridBagConstraints();
+				gridBagConstraints_16.insets = new Insets(0, 0, 5, 145);
+				gridBagConstraints_16.gridy = 0;
+				gridBagConstraints_16.gridx = 1;
+				gridBagConstraints_16.fill = java.awt.GridBagConstraints.BOTH;
+				gridBagConstraints_16.weightx = 1.0;
+				jPanel5.add(jTextField6, gridBagConstraints_16);
 
 		jLabel11.setText("Tytu³y wydzielonych stron:");
 		jLabel11.setMaximumSize(new java.awt.Dimension(140, 14));
@@ -673,44 +675,63 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		gridBagConstraints.gridy = 1;
 		gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
 		gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-		// jPanel5.add(jLabel11, gridBagConstraints);
+				
+				btnZapisz = new JButton("Zapisz");
+				btnZapisz.setEnabled(false);
+				btnZapisz.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						saveToFile();
+					}
 
-		jLabel12.setText("Iloœæ stron:");
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.gridx = 0;
-		gridBagConstraints.gridy = 0;
-		gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-		gridBagConstraints.weightx = 1.0;
-		gridBagConstraints.insets = new Insets(5, 10, 5, 5);
-		jPanel5.add(jLabel12, gridBagConstraints);
-
-		jTextField6.setText("6000");
-		jTextField6.setCaretPosition(1);
-		jTextField6.setPreferredSize(new java.awt.Dimension(20, 30));
-		gridBagConstraints_16 = new java.awt.GridBagConstraints();
-		gridBagConstraints_16.gridy = 0;
-		gridBagConstraints_16.gridx = 1;
-		gridBagConstraints_16.fill = java.awt.GridBagConstraints.BOTH;
-		gridBagConstraints_16.weightx = 1.0;
-		gridBagConstraints_16.insets = new Insets(5, 0, 5, 5);
-		jPanel5.add(jTextField6, gridBagConstraints_16);
-
-		breaker = new JButton("Przerwij");
-		breaker.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (runningTask != null) {
-					runningTask.stop();
-				}
-			}
-		});
-		GridBagConstraints gbc_breaker = new GridBagConstraints();
-		gbc_breaker.fill = GridBagConstraints.BOTH;
-		gbc_breaker.insets = new Insets(5, 0, 5, 10);
-		gbc_breaker.gridx = 4;
-		gbc_breaker.gridy = 0;
-		jPanel5.add(breaker, gbc_breaker);
-
-		jScrollPane1.setPreferredSize(new java.awt.Dimension(425, 120));
+				});
+				jButton7 = new javax.swing.JButton();
+				
+						jButton7.setText("Uruchom");
+						jButton7.addActionListener(new java.awt.event.ActionListener() {
+							public void actionPerformed(java.awt.event.ActionEvent evt) {
+								jButton7ActionPerformed(evt);
+							}
+						});
+						gridBagConstraints = new java.awt.GridBagConstraints();
+						gridBagConstraints.gridx = 2;
+						gridBagConstraints.gridy = 0;
+						gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+						gridBagConstraints.insets = new Insets(5, 15, 5, 15);
+						jPanel5.add(jButton7, gridBagConstraints);
+				
+						breaker = new JButton("Przerwij");
+						breaker.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								if (runningTask != null) {
+									runningTask.stop();
+								}
+							}
+						});
+						GridBagConstraints gbc_breaker = new GridBagConstraints();
+						gbc_breaker.fill = GridBagConstraints.BOTH;
+						gbc_breaker.insets = new Insets(5, 15, 5, 15);
+						gbc_breaker.gridx = 3;
+						gbc_breaker.gridy = 0;
+						jPanel5.add(breaker, gbc_breaker);
+				jButton2 = new javax.swing.JButton();
+				jButton2.addActionListener(new java.awt.event.ActionListener() {
+					public void actionPerformed(java.awt.event.ActionEvent evt) {
+						jButton2ActionPerformed(evt);
+					}
+				});
+				
+						jButton2.setText("Wyœwietl");
+						gridBagConstraints = new java.awt.GridBagConstraints();
+						gridBagConstraints.gridx = 4;
+						gridBagConstraints.gridy = 0;
+						gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+						gridBagConstraints.insets = new Insets(5, 15, 5, 15);
+						jPanel5.add(jButton2, gridBagConstraints);
+				GridBagConstraints gbc_btnZapisz = new GridBagConstraints();
+				gbc_btnZapisz.insets = new Insets(5, 15, 5, 15);
+				gbc_btnZapisz.gridx = 5;
+				gbc_btnZapisz.gridy = 0;
+				jPanel5.add(btnZapisz, gbc_btnZapisz);
 
 		/*
 		 * jTable1.setModel(new javax.swing.table.DefaultTableModel( new Object
@@ -718,49 +739,144 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		 * null, null, null}, {null, null, null, null} }, new String [] {
 		 * "Title 1", "Title 2", "Title 3", "Title 4" } ));
 		 */
-		jScrollPane1.setViewportView(jTable1);
 
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.gridx = 1;
-		gridBagConstraints.gridy = 1;
-		gridBagConstraints.gridwidth = 4;
-		gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-		gridBagConstraints.weightx = 1.0;
-		gridBagConstraints.weighty = 1.0;
-		gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
-		jPanel5.add(jScrollPane1, gridBagConstraints);
-
-		jButton2.setText("Wyœwietl");
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.gridx = 3;
-		gridBagConstraints.gridy = 0;
-		gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-		gridBagConstraints.insets = new Insets(5, 0, 5, 5);
-		jPanel5.add(jButton2, gridBagConstraints);
-
-		gridBagConstraints = new java.awt.GridBagConstraints();
-		gridBagConstraints.gridy = 4;
-		gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-		gridBagConstraints.weightx = 1.0;
-		gridBagConstraints.weighty = 1.0;
-		gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 5);
-		getContentPane().add(jPanel5, gridBagConstraints);
+		gridBagConstraints_18 = new java.awt.GridBagConstraints();
+		gridBagConstraints_18.weighty = 1.0;
+		gridBagConstraints_18.gridy = 4;
+		gridBagConstraints_18.fill = java.awt.GridBagConstraints.BOTH;
+		gridBagConstraints_18.weightx = 1.0;
+		gridBagConstraints_18.insets = new Insets(5, 5, 5, 5);
+		getContentPane().add(jPanel5, gridBagConstraints_18);
+						jScrollPane1 = new javax.swing.JScrollPane();
+						jTable1 = new javax.swing.JTable(new DefaultTableModel(columnNames, 0)) {
+							private static final long serialVersionUID = 1L;
+	        public boolean isCellEditable(int row, int column) {                
+	                return false;               
+	        };
+						};
+						// TableCellRenderer renderer = new DefaultTableCellRenderer();
+						// ((JLabel) renderer).setHorizontalAlignment(SwingConstants.CENTER);
+						// jTable1.getColumnModel().getColumn(1).setHeaderRenderer(renderer);
+						jTable1.getColumnModel().getColumn(0).setPreferredWidth(20);
+						jTable1.getColumnModel().getColumn(1).setPreferredWidth(400);
+						
+								jScrollPane1.setPreferredSize(new Dimension(800, 120));
+								jScrollPane1.setViewportView(jTable1);
+								
+										gridBagConstraints = new java.awt.GridBagConstraints();
+										gridBagConstraints.gridx = 0;
+										gridBagConstraints.gridy = 1;
+										gridBagConstraints.gridwidth = 9;
+										gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+										gridBagConstraints.weightx = 1.0;
+										gridBagConstraints.weighty = 1.0;
+										gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
+										jPanel5.add(jScrollPane1, gridBagConstraints);
 
 		String[] columnNames2 = { "Tytu³" };
-		jTable2 = new JTable(new DefaultTableModel(columnNames2, 0));
+		jTable2 = new JTable(new DefaultTableModel(columnNames2, 0)) {
+			public boolean isCellEditable(int row, int column) {                
+                return false;               
+        };};
 		pack();
 	}// </editor-fold>//GEN-END:initComponents
 
 	private void btnFazaActionPerformed(String tableName) {
 		createPhaseFrame(tableName);
-
 	}
-
+	private void saveToFile() {
+		JFileChooser jfc = new JFileChooser();
+		jfc.addChoosableFileFilter(new FileNameExtensionFilter("*.txt", "txt"));
+		jfc.setAcceptAllFileFilterUsed(false);
+		int option = jfc.showSaveDialog(MainWindow.this);
+		if(option == JFileChooser.APPROVE_OPTION) {
+			String ext = jfc.getFileFilter().getDescription();
+			if(ext.equals("*.txt")) {
+				try {
+					PrintWriter pr = new PrintWriter(jfc.getSelectedFile() + ".txt");
+					DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+					for(int i = 0; i < model.getRowCount(); i++) {
+						for(int j = 0; j < model.getColumnCount(); j++) {
+							pr.print(model.getValueAt(i,j));
+							pr.print("\t");
+						}
+						pr.println();						
+					}
+					pr.close();
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 	private int truncateTable(String tableName) {
 		String hql = String.format("truncate table %s", tableName);
 		Query query = DatabaseSession.getSessionFactory().openSession().createSQLQuery(hql);
 		return query.executeUpdate();
 	}
+	private void createDisplayFrame()
+    {
+        EventQueue.invokeLater(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                JFrame frame = new JFrame();
+                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                try 
+                {
+                   UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                } catch (Exception e) {
+                   e.printStackTrace();
+                }
+                JPanel panel = new JPanel();
+                panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+                panel.setOpaque(true);
+                JScrollPane scroller = new JScrollPane();
+                scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+                scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                addPageRankTitles();
+                JPanel inputpanel = new JPanel();
+                inputpanel.setLayout(new FlowLayout());
+                JTextField input = new JTextField(20);
+                input.setEditable(false);
+                JButton button = new JButton("Wyœwietl zawartoœæ");
+                button.setEnabled(false);
+                panel.add(scroller);
+                inputpanel.add(input);
+                inputpanel.add(button);
+                panel.add(inputpanel);
+                jTable2.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+                    public void valueChanged(ListSelectionEvent event) {
+                    	button.setEnabled(true);
+                    	int rowIndex = jTable2.getSelectedRow();
+                        input.setText(jTable2.getValueAt(rowIndex, 0).toString());
+                    }
+                });            
+                button.addActionListener(new java.awt.event.ActionListener() {
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    	if(jTable2.getRowCount() > 0)
+                    	{
+                	    	int rowIndex = jTable2.getSelectedRow();
+                	    	if(rowIndex != -1)
+                	    	{
+                	    		String title = input.getText();
+                	    		String content = parseContent(returnContent(title));
+                	    		createFrame(title, content);
+                	    	}
+                    	}
+                    }
+                });
+                scroller.setViewportView(jTable2);
+                panel.add(scroller);
+                frame.getContentPane().add(BorderLayout.CENTER, panel);
+                frame.pack();
+                frame.setLocationByPlatform(true);
+                frame.setVisible(true);
+                frame.setResizable(true);
+            }
+        });
+    }
 
 	private static void createPhaseFrame(String tableName) {
 		EventQueue.invokeLater(new Runnable() {
@@ -851,6 +967,14 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		} catch (RuntimeException e) {
 			e.printStackTrace();
 			throw e;
+		}
+	}
+	
+	private void addPageRankTitles() {
+		DefaultTableModel sourceModel = (DefaultTableModel) jTable1.getModel();
+		DefaultTableModel destModel = (DefaultTableModel) jTable2.getModel();
+		for(int i = 0; i < sourceModel.getRowCount(); i++) {
+			destModel.addRow(new Object[]{sourceModel.getValueAt(i,1)});	
 		}
 	}
 
@@ -973,6 +1097,9 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 			@Override
 			public void run() {
 				setButtons(false);
+				DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+				model.setRowCount(0);
+				jTable1.revalidate();
 				try {
 					jProgressBar1.setValue(0);
 					pagerank();
@@ -986,7 +1113,8 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 	}// GEN-LAST:event_jButton7ActionPerformed
 
 	private void jButton2ActionPerformed(ActionEvent evt) {
-		if (jTable1.getRowCount() > 0) {
+		createDisplayFrame();
+		/*if (jTable1.getRowCount() > 0) {
 			int rowIndex = this.jTable1.getSelectedRow();
 			if (rowIndex != -1) {
 				String title = this.jTable1.getValueAt(rowIndex, 1).toString();
@@ -995,10 +1123,8 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 				createFrame(title, content);
 				statusLabel.setText("");
 			}
-		}
-
+		}*/
 	}
-
 	public static String parseContent(String content) {
 		Pattern p = Pattern.compile("<ref[^>]*>(.*?)</ref>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 		content = p.matcher(content).replaceAll("");
@@ -1013,7 +1139,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		}
 		return sb.toString();
 	}
-
+	
 	public static void createFrame(String title, String content) {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
@@ -1078,11 +1204,14 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 
 	private void setButtons(boolean to) {
 		jButton1.setEnabled(to);
+		jButton2.setEnabled(to);
+		jButton7.setEnabled(to);
 		faza1Btn.setEnabled(to);
 		faza2Btn.setEnabled(to);
 		faza3Btn.setEnabled(to);
 		faza4Btn.setEnabled(to);
 		faza5Btn.setEnabled(to);
+		btnZapisz.setEnabled(to);
 
 		jTextField1.setEnabled(to);
 		jTextField2.setEnabled(to);
@@ -1286,11 +1415,16 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 		int i = 1;
 		for (Map.Entry<Integer, Double> entry : pagerankResults.entrySet()) {
 			String title = gauss.findTitle(entry.getKey());
-			Double value = BigDecimal.valueOf(entry.getValue()).setScale(6, RoundingMode.HALF_UP).doubleValue();
+			Double value = BigDecimal.valueOf(entry.getValue()).setScale(16, RoundingMode.HALF_UP).doubleValue();
 			DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-			model.addRow(new Object[] { Integer.toString(i++), title, value });
-			// gauss.saveToDatabase(i++, title);
+			DecimalFormat df = new DecimalFormat();
+			DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
+			symbols.setDecimalSeparator('.');
+			df.setMaximumFractionDigits(8);
+			df.setDecimalFormatSymbols(symbols);
+			model.addRow(new Object[] { Integer.toString(i++), title, df.format(value), entry.getKey() });
 		}
+		btnZapisz.setEnabled(true);
 	}
 
 	public static String returnContent(String title) {
@@ -1387,5 +1521,8 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 	private GridBagConstraints gridBagConstraints_15;
 	private GridBagConstraints gridBagConstraints_16;
 	private JButton breaker;
+	private JButton btnZapisz;
+	private GridBagConstraints gridBagConstraints_17;
+	private GridBagConstraints gridBagConstraints_18;
 	// End of variables declaration//GEN-END:variables
 }

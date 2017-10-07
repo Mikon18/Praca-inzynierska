@@ -18,5 +18,6 @@
         <mapping class="com.eti.wiki.model.WikiOccurences"/>
         <mapping class="com.eti.wiki.model.ReferenceKeyword"/>
         <mapping class="com.eti.wiki.model.ReferenceKeywordAll"/>
+        <mapping class="com.eti.wiki.model.PageRank"/>
     </session-factory>
 </hibernate-configuration>

@@ -40,3 +40,11 @@ CREATE TABLE `wikireferencekeywordall` (
   `keyword` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `pagerank` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `title` varchar(1024) NOT NULL,
+ `value` double NOT NULL,
+ `ref_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4537477 DEFAULT CHARSET=utf8;

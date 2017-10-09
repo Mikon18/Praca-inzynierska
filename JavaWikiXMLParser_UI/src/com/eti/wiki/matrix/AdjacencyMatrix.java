@@ -11,16 +11,33 @@ import com.eti.wiki.database.DatabaseSession;
 
 public class AdjacencyMatrix extends Matrix{
     private double [] linkCount;
-    private String sqlQuery = "SELECT * FROM wikireferencekeyword WHERE keyword = 'Sport;'";
+    private static final String TABLE = "wikireference";
+    private StringBuilder sqlQuery = new StringBuilder("");
     public Map<Integer, Integer> pageIdMapX = new HashMap<>();
     private Map<Integer, Integer> pageIdMapY = new HashMap<>();
-    public AdjacencyMatrix(int n) throws FileNotFoundException {
+    public AdjacencyMatrix(int n, String keyword) throws FileNotFoundException {
         super(n);
+        createSqlQuery(keyword);
         fillMatrix();
         modifyAdjacencyMatrix();
         setLinkCount();
     }
-    public void modifyAdjacencyMatrix(){
+    private void createSqlQuery(String keyword) {
+    	sqlQuery.append(String.format("SELECT * FROM %1$s WHERE", TABLE));
+    	if(!keyword.contains(",")) {
+    		sqlQuery.append(String.format(" keyword='%1$s'", keyword));
+    	} else {
+    		String[] keywords = keyword.split(",");
+    		for(int i = 0; i < keywords.length; i++) {
+    			sqlQuery.append(String.format(" keyword='%1$s' ", keywords[i]));
+    			if(i+1 != keyword.length()) {
+    				sqlQuery.append("OR");
+    			}
+    		}
+    	}
+		
+	}
+	public void modifyAdjacencyMatrix(){
         for(int i = 0; i < getSize(); i++){
             for(int j = 0; j < getSize(); j++){
                 if(getMatrix(j, i) == 1.0){
@@ -57,7 +74,7 @@ public class AdjacencyMatrix extends Matrix{
     	{
 	        session.getTransaction().begin();
 	        @SuppressWarnings("unchecked")
-	        List<Object> references = (List<Object>)session.createSQLQuery(sqlQuery).list();
+	        List<Object> references = (List<Object>)session.createSQLQuery(sqlQuery.toString()).list();
 	        Iterator<Object> itr = references.iterator();
 	        int x = 0;
 	        int y = 0;

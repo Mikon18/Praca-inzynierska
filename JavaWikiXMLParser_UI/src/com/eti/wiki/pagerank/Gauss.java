@@ -43,7 +43,7 @@ public class Gauss
     private DiagonalMatrix diagonalMatrix;
     private JProgressBar jpb;
     private JLabel jl;
-    public Gauss(int n, JProgressBar jProgressBar1, JLabel jlabel) throws FileNotFoundException{
+    public Gauss(int n, JProgressBar jProgressBar1, JLabel jlabel, String keyword) throws FileNotFoundException{
     	this.jpb = jProgressBar1;
     	this.jl = jlabel;
         this.tStart = System.currentTimeMillis();
@@ -60,7 +60,7 @@ public class Gauss
         this.matrixX = new double[n];
         this.matrixX2 = new double[n];
         jl.setText("Tworzenie macierzy s¹siedztwa");
-        this.adjacencyMatrix = new AdjacencyMatrix(n);
+        this.adjacencyMatrix = new AdjacencyMatrix(n, keyword);
         jl.setText("Tworzenie macierzy jednostkowej");
         this.identityMatrix = new IdentityMatrix(n);
         jl.setText("Tworzenie macierzy diagonalnej");
@@ -161,17 +161,6 @@ public class Gauss
             }
         }
         Map<Integer, Double> sortedPageRank = sortPageRank(pageRank);
-     /*   PrintWriter pr = new PrintWriter("D://pagerank.txt");
-        for(Map.Entry<Integer, Double> entry : sortedPageRank.entrySet()){
-            System.out.println(entry.getKey() + "/" + entry.getValue());
-            String title = findTitle(entry.getKey());
-            pr.println(entry.getKey() + " " + entry.getValue() + " " + title);
-        }
-        pr.close();
-        long tEnd = System.currentTimeMillis();
-        long tDelta = tEnd - tStart;
-        double elapsedSeconds = tDelta / 1000.0;
-        System.out.println(elapsedSeconds / 60);*/
         return sortedPageRank;
     }
     public String findTitle(Integer key)

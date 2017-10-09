@@ -1410,7 +1410,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 
 	private void pagerank() throws FileNotFoundException {
 		int pageCount = Integer.parseInt(jTextField6.getText());
-		Gauss gauss = new Gauss(pageCount, this.jProgressBar1, this.statusLabel);
+		Gauss gauss = new Gauss(pageCount, this.jProgressBar1, this.statusLabel, this.jTextField2.getText());
 		Map<Integer, Double> pagerankResults = gauss.solveGaussSeidel(this.jProgressBar1, this.statusLabel);
 		int i = 1;
 		for (Map.Entry<Integer, Double> entry : pagerankResults.entrySet()) {

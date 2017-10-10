@@ -11,7 +11,7 @@ import com.eti.wiki.database.DatabaseSession;
 
 public class AdjacencyMatrix extends Matrix{
     private double [] linkCount;
-    private static final String TABLE = "wikireference";
+    private static final String TABLE = "wikireferencekeyword";
     private StringBuilder sqlQuery = new StringBuilder("");
     public Map<Integer, Integer> pageIdMapX = new HashMap<>();
     private Map<Integer, Integer> pageIdMapY = new HashMap<>();

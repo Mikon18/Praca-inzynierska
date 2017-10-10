@@ -950,7 +950,7 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 			t.begin();
 			String sqlQuery = null;
 			if (table.contains("reference")) {
-				sqlQuery = "SELECT reference_id FROM " + table;
+				sqlQuery = "SELECT DISTINCT reference_id FROM " + table;
 			} else {
 				sqlQuery = "SELECT title FROM " + table;
 			}
@@ -1113,7 +1113,8 @@ public class MainWindow extends javax.swing.JFrame implements IParsingProgressLi
 	}// GEN-LAST:event_jButton7ActionPerformed
 
 	private void jButton2ActionPerformed(ActionEvent evt) {
-		createDisplayFrame();
+		btnFazaActionPerformed("pagerank");
+		//createDisplayFrame();
 		/*if (jTable1.getRowCount() > 0) {
 			int rowIndex = this.jTable1.getSelectedRow();
 			if (rowIndex != -1) {
